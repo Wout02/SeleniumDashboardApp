@@ -1,0 +1,6 @@
+@SeleniumDashboardApi_HostAddress = http://localhost:5240
+
+GET {{SeleniumDashboardApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
