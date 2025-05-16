@@ -10,11 +10,11 @@ namespace SeleniumDashboardApp.Services
         public LocalDatabaseService(string dbPath)
         {
             _db = new SQLiteAsyncConnection(dbPath);
-            _db.CreateTableAsync<TestRun>().Wait();
+            _db.CreateTableAsync<LocalTestRun>().Wait();
         }
 
-        public Task<List<TestRun>> GetTestRunsAsync() => _db.Table<TestRun>().ToListAsync();
-        public Task<int> SaveTestRunAsync(TestRun run) => _db.InsertAsync(run);
-        public Task<int> DeleteAllAsync() => _db.DeleteAllAsync<TestRun>();
+        public Task<List<LocalTestRun>> GetTestRunsAsync() => _db.Table<LocalTestRun>().ToListAsync();
+        public Task<int> SaveTestRunAsync(LocalTestRun run) => _db.InsertAsync(run);
+        public Task<int> DeleteAllAsync() => _db.DeleteAllAsync<LocalTestRun>();
     }
 }

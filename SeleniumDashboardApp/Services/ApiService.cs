@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using SeleniumDashboardApp.Models;
+using SeleniumDashboard.Shared;
 
 namespace SeleniumDashboardApp.Services
 {

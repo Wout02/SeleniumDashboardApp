@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SeleniumDashboardApi.Models;
+using Microsoft.EntityFrameworkCore;
+using SeleniumDashboard.Shared;
+using SeleniumDashboardApi.Data;
 
 namespace SeleniumDashboardApi.Controllers
 {
@@ -7,16 +9,26 @@ namespace SeleniumDashboardApi.Controllers
     [Route("api/[controller]")]
     public class TestrunController : ControllerBase
     {
-        [HttpGet]
-        public IActionResult Get()
-        {
-            var runs = new List<TestRun>
-            {
-                new TestRun { Id = 1, ProjectName = "App1", Status = "Passed", Date = DateTime.Now.AddDays(-1), Summary = "All tests passed" },
-                new TestRun { Id = 2, ProjectName = "App2", Status = "Failed", Date = DateTime.Now, Summary = "Login test failed" }
-            };
+        private readonly TestRunDbContext _context;
 
-            return Ok(runs);
+        public TestrunController(TestRunDbContext context)
+        {
+            _context = context;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            var all = await _context.TestRuns.ToListAsync();
+            return Ok(all);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] TestRun run)
+        {
+            _context.TestRuns.Add(run);
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Testrun opgeslagen in database" });
         }
     }
 }

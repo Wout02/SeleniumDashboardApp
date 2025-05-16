@@ -4,6 +4,7 @@ using Microsoft.Maui.Hosting;
 using SeleniumDashboardApp.Services;
 using SeleniumDashboardApp.ViewModels;
 using SeleniumDashboardApp.Views;
+using SeleniumDashboardApp.Models;
 
 namespace SeleniumDashboardApp
 {

@@ -73,4 +73,8 @@
 	  <Folder Include="Utils\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\SeleniumDashboard.Shared\SeleniumDashboard.Shared.csproj" />
+	</ItemGroup>
+
 </Project>
