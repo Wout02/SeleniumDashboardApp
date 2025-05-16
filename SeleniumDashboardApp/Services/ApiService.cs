@@ -17,5 +17,10 @@ namespace SeleniumDashboardApp.Services
             var json = await _http.GetStringAsync("api/testrun");
             return JsonConvert.DeserializeObject<List<TestRun>>(json);
         }
+
+        public async Task<string> GetRawAsync(string endpoint)
+        {
+            return await _http.GetStringAsync(endpoint);
+        }
     }
 }

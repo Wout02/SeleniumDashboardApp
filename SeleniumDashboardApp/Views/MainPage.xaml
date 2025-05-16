@@ -1,24 +1,43 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:SeleniumDashboardApp.ViewModels"
              x:Class="SeleniumDashboardApp.Views.MainPage">
+
     <ScrollView>
-        <VerticalStackLayout Padding="30,0" Spacing="25">
-            <Label Text="Selenium Test Runs" FontSize="24" FontAttributes="Bold" />
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <!-- Filters -->
+            <HorizontalStackLayout Spacing="10">
+                <Entry Placeholder="Zoek op project..." Text="{Binding SearchProject}" WidthRequest="180" />
+                <Picker Title="Status" SelectedItem="{Binding SelectedStatus}" WidthRequest="120">
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>Passed</x:String>
+                            <x:String>Failed</x:String>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
+                <Button Text="Filter" Command="{Binding ApplyFiltersCommand}" />
+                <Button Text="Reset" Command="{Binding ResetFiltersCommand}" />
+            </HorizontalStackLayout>
+
+            <!-- Resultaten -->
             <CollectionView ItemsSource="{Binding TestRuns}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Frame BorderColor="Gray" Padding="10" Margin="5">
-                            <StackLayout>
+                            <VerticalStackLayout>
                                 <Label Text="{Binding ProjectName}" FontAttributes="Bold" />
                                 <Label Text="{Binding Status}" />
                                 <Label Text="{Binding Date}" />
                                 <Label Text="{Binding Summary}" LineBreakMode="TailTruncation" />
-                            </StackLayout>
+                            </VerticalStackLayout>
                         </Frame>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

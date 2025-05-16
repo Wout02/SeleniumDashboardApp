@@ -32,7 +32,7 @@ namespace SeleniumDashboardApp
             builder.Services.AddSingleton<MainPage>();
 
 #if DEBUG
-            builder.Logging.AddDebug();
+            builder.Configuration["DisableDebugToolbar"] = "true";
 #endif
 
             return builder.Build();

@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿// ViewModel: ViewModels/DashboardViewModel.cs
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using SeleniumDashboard.Shared;
 using SeleniumDashboardApp.Services;
 using System.Collections.ObjectModel;
@@ -9,11 +11,16 @@ namespace SeleniumDashboardApp.ViewModels
     public partial class DashboardViewModel : ObservableObject
     {
         private readonly ApiService _apiService;
+        private readonly LocalDatabaseService _database;
 
         [ObservableProperty]
         private ObservableCollection<TestRun> testRuns;
 
-        private readonly LocalDatabaseService _database;
+        [ObservableProperty]
+        private string selectedStatus;
+
+        [ObservableProperty]
+        private string searchProject;
 
         public DashboardViewModel(ApiService apiService, LocalDatabaseService database)
         {
@@ -41,9 +48,43 @@ namespace SeleniumDashboardApp.ViewModels
                 await _database.SaveTestRunAsync(local);
             }
 
-            // Laden uit database
             var localRuns = await _database.GetTestRunsAsync();
             TestRuns = new ObservableCollection<TestRun>(localRuns);
         }
+
+        [RelayCommand]
+        public async Task ApplyFilters()
+        {
+            var url = "api/testrun/filter";
+            var query = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(selectedStatus))
+                query.Add($"status={selectedStatus}");
+
+            if (!string.IsNullOrWhiteSpace(searchProject))
+                query.Add($"project={searchProject}");
+
+            if (query.Any())
+                url += "?" + string.Join("&", query);
+
+            var json = await _apiService.GetRawAsync(url);
+            var results = Newtonsoft.Json.JsonConvert.DeserializeObject<List<TestRun>>(json);
+            TestRuns = new ObservableCollection<TestRun>(results);
+        }
+
+        [RelayCommand]
+        public async Task ResetFilters()
+        {
+            selectedStatus = string.Empty;
+            searchProject = string.Empty;
+            await LoadAllAsync();
+        }
+
+        private async Task LoadAllAsync()
+        {
+            var runs = await _apiService.GetTestRunsAsync();
+            TestRuns = new ObservableCollection<TestRun>(runs);
+        }
     }
 }
+

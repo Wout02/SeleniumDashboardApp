@@ -30,5 +30,19 @@ namespace SeleniumDashboardApi.Controllers
             await _context.SaveChangesAsync();
             return Ok(new { message = "Testrun opgeslagen in database" });
         }
+
+        [HttpGet("filter")]
+        public async Task<IActionResult> Filter([FromQuery] string? status, [FromQuery] string? project)
+        {
+            var query = _context.TestRuns.AsQueryable();
+
+            if (!string.IsNullOrEmpty(status))
+                query = query.Where(t => t.Status.ToLower() == status.ToLower());
+
+            if (!string.IsNullOrEmpty(project))
+                query = query.Where(t => t.ProjectName.ToLower().Contains(project.ToLower()));
+
+            return Ok(await query.ToListAsync());
+        }
     }
 }
