@@ -2,15 +2,59 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:SeleniumDashboardApp.ViewModels"
-             x:Class="SeleniumDashboardApp.Views.MainPage">
+             xmlns:converters="clr-namespace:SeleniumDashboardApp.Converters"
+             x:Class="SeleniumDashboardApp.Views.MainPage"
+             BackgroundColor="White">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="15">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:StatusColorConverter x:Key="StatusColorConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
-            <!-- Filters -->
-            <HorizontalStackLayout Spacing="10">
-                <Entry Placeholder="Zoek op project..." Text="{Binding SearchProject}" WidthRequest="180" />
-                <Picker Title="Status" SelectedItem="{Binding SelectedStatus}" WidthRequest="120">
+    <Grid RowDefinitions="Auto,*">
+        <!-- TopBar met zoek- en filterknoppen -->
+        <Grid Padding="10" BackgroundColor="#F1F1F1" Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Label Text="Selenium Testresultaten"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   VerticalOptions="Center"
+                   TextColor="Black" />
+
+            <Button Text="🔍"
+                    Grid.Column="1"
+                    Clicked="OnToggleSearchClicked"
+                    BackgroundColor="Transparent"
+                    FontSize="18" />
+
+            <Button Text="⚙️"
+                    Grid.Column="2"
+                    Clicked="OnToggleFilterClicked"
+                    BackgroundColor="Transparent"
+                    FontSize="18" />
+        </Grid>
+
+        <!-- Inhoud -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20" Spacing="20">
+
+                <!-- Zoekveld (zichtbaar op toggle) -->
+                <Entry x:Name="SearchEntry"
+                       Placeholder="Zoek op project..."
+                       Text="{Binding SearchProject}"
+                       IsVisible="False" />
+
+                <!-- Filterveld (zichtbaar op toggle) -->
+                <Picker x:Name="StatusPicker"
+                        Title="Status filteren"
+                        SelectedItem="{Binding SelectedStatus}"
+                        IsVisible="False">
                     <Picker.ItemsSource>
                         <x:Array Type="{x:Type x:String}">
                             <x:String>Passed</x:String>
@@ -18,26 +62,44 @@
                         </x:Array>
                     </Picker.ItemsSource>
                 </Picker>
-                <Button Text="Filter" Command="{Binding ApplyFiltersCommand}" />
-                <Button Text="Reset" Command="{Binding ResetFiltersCommand}" />
-            </HorizontalStackLayout>
 
-            <!-- Resultaten -->
-            <CollectionView ItemsSource="{Binding TestRuns}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Frame BorderColor="Gray" Padding="10" Margin="5">
-                            <VerticalStackLayout>
-                                <Label Text="{Binding ProjectName}" FontAttributes="Bold" />
-                                <Label Text="{Binding Status}" />
-                                <Label Text="{Binding Date}" />
-                                <Label Text="{Binding Summary}" LineBreakMode="TailTruncation" />
-                            </VerticalStackLayout>
-                        </Frame>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                <!-- Filteracties -->
+                <HorizontalStackLayout x:Name="FilterButtons" Spacing="10" IsVisible="False">
+                    <Button Text="Filter" Command="{Binding ApplyFiltersCommand}" />
+                    <Button Text="Reset" Command="{Binding ResetFiltersCommand}" />
+                </HorizontalStackLayout>
 
-        </VerticalStackLayout>
-    </ScrollView>
+                <!-- Resultaten -->
+                <CollectionView ItemsSource="{Binding TestRuns}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame Padding="15" Margin="10"
+                                   BorderColor="LightGray"
+                                   BackgroundColor="#F9F9F9"
+                                   CornerRadius="12"
+                                   HasShadow="True">
+                                <VerticalStackLayout Spacing="5">
+                                    <Label Text="{Binding ProjectName}"
+                                           FontAttributes="Bold"
+                                           FontSize="18"
+                                           TextColor="Black" />
+
+                                    <Label Text="{Binding Status}"
+                                           TextColor="{Binding Status, Converter={StaticResource StatusColorConverter}}" />
+
+                                    <Label Text="{Binding Date}" FontSize="12" TextColor="Gray" />
+
+                                    <Label Text="{Binding Summary}"
+                                           LineBreakMode="TailTruncation"
+                                           FontSize="14"
+                                           TextColor="DimGray" />
+                                </VerticalStackLayout>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 </ContentPage>
