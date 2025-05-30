@@ -1,6 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.Maui;
-using Microsoft.Maui.Hosting;
 using SeleniumDashboardApp.Services;
 using SeleniumDashboardApp.ViewModels;
 using SeleniumDashboardApp.Views;
@@ -23,11 +21,13 @@ namespace SeleniumDashboardApp
             string dbPath = Path.Combine(FileSystem.AppDataDirectory, "testruns.db3");
 
             builder.Services.AddSingleton(new LocalDatabaseService(dbPath));
-            builder.Services.AddSingleton<ApiService>();
+
+            // ✅ Correcte registratie van ApiService met BaseAddress
             builder.Services.AddHttpClient<ApiService>(client =>
             {
-                client.BaseAddress = new Uri("https://localhost:7079");
+                client.BaseAddress = new Uri("http://5af2-84-83-178-6.ngrok-free.app/");
             });
+
             builder.Services.AddSingleton<DashboardViewModel>();
             builder.Services.AddSingleton<MainPage>();
 

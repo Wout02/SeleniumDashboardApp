@@ -14,8 +14,16 @@ namespace SeleniumDashboardApp.Services
 
         public async Task<List<TestRun>> GetTestRunsAsync()
         {
-            var json = await _http.GetStringAsync("api/testrun");
-            return JsonConvert.DeserializeObject<List<TestRun>>(json);
+            try
+            {
+                var json = await _http.GetStringAsync("api/testrun");
+                return JsonConvert.DeserializeObject<List<TestRun>>(json);
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"[API ERROR] {ex.Message}");
+                return new List<TestRun>(); // fallback
+            }
         }
 
         public async Task<string> GetRawAsync(string endpoint)
