@@ -7,6 +7,6 @@
     Shell.FlyoutBehavior="Flyout"
     Title="SeleniumDashboardApp">
 
-    <ShellContent Title="Dashboard" ContentTemplate="{DataTemplate local:MainPage}" />
+    <ShellContent Title="Dashboard" ContentTemplate="{DataTemplate local:MainPage}" Shell.NavBarIsVisible="false"/>
 
 </Shell>
