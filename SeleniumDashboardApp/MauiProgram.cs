@@ -3,6 +3,7 @@ using SeleniumDashboardApp.Services;
 using SeleniumDashboardApp.ViewModels;
 using SeleniumDashboardApp.Views;
 using SeleniumDashboardApp.Models;
+using CommunityToolkit.Maui;
 
 namespace SeleniumDashboardApp
 {
@@ -13,6 +14,7 @@ namespace SeleniumDashboardApp
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .UseMauiCommunityToolkit()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -25,11 +27,16 @@ namespace SeleniumDashboardApp
             // ✅ Correcte registratie van ApiService met BaseAddress
             builder.Services.AddHttpClient<ApiService>(client =>
             {
-                client.BaseAddress = new Uri("http://5af2-84-83-178-6.ngrok-free.app/");
+                client.BaseAddress = new Uri("https://cf55-84-83-178-6.ngrok-free.app/");
             });
 
             builder.Services.AddSingleton<DashboardViewModel>();
-            builder.Services.AddSingleton<MainPage>();
+            builder.Services.AddTransient<MainPage>();
+            builder.Services.AddTransient<TestRunDetailsViewModel>();
+            builder.Services.AddTransient<TestRunDetailsPage>();
+            builder.Services.AddTransient<TestRunDetailsTabbedPage>();
+            builder.Services.AddTransient<TestRunLogsPage>();
+            builder.Services.AddTransient<TestRunGraphPage>();
 
 #if DEBUG
             builder.Configuration["DisableDebugToolbar"] = "true";

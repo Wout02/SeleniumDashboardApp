@@ -70,7 +70,7 @@
                 </HorizontalStackLayout>
 
                 <!-- Resultaten -->
-                <CollectionView ItemsSource="{Binding TestRuns}">
+                <CollectionView ItemsSource="{Binding TestRuns}" SelectionMode="Single" SelectionChanged="OnTestRunTapped">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <Frame Padding="15" Margin="10"
