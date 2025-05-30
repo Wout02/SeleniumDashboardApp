@@ -1,43 +1,63 @@
-﻿using SeleniumDashboardApp.Models;
+﻿using SeleniumDashboardApp.ViewModels;
 using SeleniumDashboardApp.Services;
-using SeleniumDashboardApp.ViewModels;
+using Microsoft.Maui.Controls.Shapes;
 
-namespace SeleniumDashboardApp.Views
+namespace SeleniumDashboardApp.Views;
+
+public partial class MainPage : ContentPage
 {
-    public partial class MainPage : ContentPage
+    private readonly LocalDatabaseService _database;
+
+    public MainPage(DashboardViewModel viewModel, LocalDatabaseService database)
     {
-        private readonly LocalDatabaseService _database;
+        InitializeComponent();
+        BindingContext = viewModel;
+        _database = database;
+        BackgroundColor = Colors.White;
+        Title = "Selenium Dashboard";
 
-        public MainPage(DashboardViewModel viewModel, LocalDatabaseService database)
+        viewModel.PropertyChanged += (s, e) =>
         {
-            InitializeComponent();
-            BindingContext = viewModel;
-            _database = database;
+            if (e.PropertyName == nameof(viewModel.SelectedStatus))
+                UpdateStatusDisplay(viewModel.SelectedStatus);
+        };
+    }
+
+    private void UpdateStatusDisplay(string status)
+    {
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            StatusDisplay.Text = $"Status: {status}";
+            StatusDisplay.IsVisible = true;
         }
-
-        private void OnToggleSearchClicked(object sender, EventArgs e)
+        else
         {
-            SearchEntry.IsVisible = !SearchEntry.IsVisible;
+            StatusDisplay.Text = string.Empty;
+            StatusDisplay.IsVisible = false;
         }
+    }
 
-        private void OnToggleFilterClicked(object sender, EventArgs e)
+    private void OnToggleSearchClicked(object sender, EventArgs e)
+    {
+        SearchEntryFrame.IsVisible = !SearchEntryFrame.IsVisible;
+    }
+
+    private void OnToggleFilterClicked(object sender, EventArgs e)
+    {
+        StatusPickerFrame.IsVisible = !StatusPickerFrame.IsVisible;
+    }
+
+    private async void OnTestRunTapped(object sender, SelectionChangedEventArgs e)
+    {
+        if (e.CurrentSelection.FirstOrDefault() is Models.LocalTestRun selectedRun)
         {
-            StatusPicker.IsVisible = !StatusPicker.IsVisible;
-            FilterButtons.IsVisible = !FilterButtons.IsVisible;
-        }
+            var viewModel = new TestRunDetailsViewModel(_database);
+            await viewModel.LoadTestRunById(selectedRun.Id);
 
-        private async void OnTestRunTapped(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.CurrentSelection.FirstOrDefault() is LocalTestRun selectedRun)
-            {
-                var viewModel = new TestRunDetailsViewModel(_database);
-                await viewModel.LoadTestRunById(selectedRun.Id);
+            var tabPage = new TestRunDetailsTabbedPage(viewModel);
+            await Navigation.PushAsync(tabPage, animated: true);
 
-                var tabPage = new TestRunDetailsTabbedPage(viewModel);
-                await Navigation.PushAsync(tabPage);
-
-                ((CollectionView)sender).SelectedItem = null; // deselecteer
-            }
+            ((CollectionView)sender).SelectedItem = null;
         }
     }
 }

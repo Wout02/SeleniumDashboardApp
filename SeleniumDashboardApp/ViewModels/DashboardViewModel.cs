@@ -1,90 +1,121 @@
-﻿// ViewModel: ViewModels/DashboardViewModel.cs
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using SeleniumDashboard.Shared;
 using SeleniumDashboardApp.Services;
-using System.Collections.ObjectModel;
 using SeleniumDashboardApp.Models;
+using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.Input;
 
-namespace SeleniumDashboardApp.ViewModels
+namespace SeleniumDashboardApp.ViewModels;
+
+public partial class DashboardViewModel : ObservableObject
 {
-    public partial class DashboardViewModel : ObservableObject
+    private readonly ApiService _apiService;
+    private readonly LocalDatabaseService _database;
+
+    [ObservableProperty]
+    private ObservableCollection<TestRun> testRuns = new();
+
+    [ObservableProperty]
+    private string searchProject;
+
+    [ObservableProperty]
+    private bool isStatusPassedSelected;
+
+    [ObservableProperty]
+    private bool isStatusFailedSelected;
+
+    public DashboardViewModel(ApiService apiService, LocalDatabaseService database)
     {
-        private readonly ApiService _apiService;
-        private readonly LocalDatabaseService _database;
+        _apiService = apiService;
+        _database = database;
+        _ = LoadAndSyncRunsAsync();
+    }
 
-        [ObservableProperty]
-        private ObservableCollection<TestRun> testRuns;
+    [RelayCommand]
+    private void ResetFilters()
+    {
+        IsStatusPassedSelected = false;
+        IsStatusFailedSelected = false;
+        SearchProject = string.Empty;
+    }
 
-        [ObservableProperty]
-        private string selectedStatus;
+    // Voor UI-weergave in het label "Status: Passed/Failed"
+    public string SelectedStatus =>
+        IsStatusPassedSelected ? "Passed" :
+        IsStatusFailedSelected ? "Failed" :
+        string.Empty;
 
-        [ObservableProperty]
-        private string searchProject;
+    partial void OnSearchProjectChanged(string value)
+    {
+        _ = ApplyLocalFiltersAsync();
+    }
 
-        public DashboardViewModel(ApiService apiService, LocalDatabaseService database)
-        {
-            _apiService = apiService;
-            _database = database;
-            LoadRuns();
-        }
+    partial void OnIsStatusPassedSelectedChanged(bool value)
+    {
+        OnPropertyChanged(nameof(SelectedStatus));
+        _ = ApplyLocalFiltersAsync();
+    }
 
-        private async void LoadRuns()
+    partial void OnIsStatusFailedSelectedChanged(bool value)
+    {
+        OnPropertyChanged(nameof(SelectedStatus));
+        _ = ApplyLocalFiltersAsync();
+    }
+
+    private async Task LoadAndSyncRunsAsync()
+    {
+        try
         {
             var runs = await _apiService.GetTestRunsAsync();
 
-            // Opslaan in lokale database
-            await _database.DeleteAllAsync();
-            foreach (var run in runs)
+            if (runs != null && runs.Count > 0)
             {
-                var local = new LocalTestRun
+                await _database.DeleteAllAsync();
+                foreach (var run in runs)
                 {
-                    Id = run.Id,
-                    ProjectName = run.ProjectName,
-                    Status = run.Status,
-                    Date = run.Date,
-                    Summary = run.Summary
-                };
-                await _database.SaveTestRunAsync(local);
+                    var local = new LocalTestRun
+                    {
+                        Id = run.Id,
+                        ProjectName = run.ProjectName,
+                        Status = run.Status,
+                        Date = run.Date,
+                        Summary = run.Summary
+                    };
+                    await _database.SaveTestRunAsync(local);
+                }
             }
-
-            var localRuns = await _database.GetTestRunsAsync();
-            TestRuns = new ObservableCollection<TestRun>(localRuns);
         }
-
-        [RelayCommand]
-        public async Task ApplyFilters()
+        catch (Exception ex)
         {
-            var url = "api/testrun/filter";
-            var query = new List<string>();
-
-            if (!string.IsNullOrWhiteSpace(selectedStatus))
-                query.Add($"status={selectedStatus}");
-
-            if (!string.IsNullOrWhiteSpace(searchProject))
-                query.Add($"project={searchProject}");
-
-            if (query.Any())
-                url += "?" + string.Join("&", query);
-
-            var json = await _apiService.GetRawAsync(url);
-            var results = Newtonsoft.Json.JsonConvert.DeserializeObject<List<TestRun>>(json);
-            TestRuns = new ObservableCollection<TestRun>(results);
+            System.Diagnostics.Debug.WriteLine($"[API Fout] {ex.Message}");
         }
 
-        [RelayCommand]
-        public async Task ResetFilters()
+        await ApplyLocalFiltersAsync();
+    }
+
+    private async Task ApplyLocalFiltersAsync()
+    {
+        var allRuns = await _database.GetTestRunsAsync();
+
+        var filtered = allRuns.Where(run =>
+            (IsStatusPassedSelected && run.Status == "Passed") ||
+            (IsStatusFailedSelected && run.Status == "Failed") ||
+            (!IsStatusPassedSelected && !IsStatusFailedSelected)
+        ).ToList();
+
+        if (!string.IsNullOrWhiteSpace(SearchProject))
+            filtered = filtered.Where(r => r.ProjectName.Contains(SearchProject, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        // Convert LocalTestRun to TestRun
+        var converted = filtered.Select(run => new TestRun
         {
-            selectedStatus = string.Empty;
-            searchProject = string.Empty;
-            await LoadAllAsync();
-        }
+            Id = run.Id,
+            ProjectName = run.ProjectName,
+            Status = run.Status,
+            Date = run.Date,
+            Summary = run.Summary
+        }).ToList();
 
-        private async Task LoadAllAsync()
-        {
-            var runs = await _apiService.GetTestRunsAsync();
-            TestRuns = new ObservableCollection<TestRun>(runs);
-        }
+        TestRuns = new ObservableCollection<TestRun>(converted);
     }
 }
-

@@ -10,5 +10,7 @@ public partial class TestRunGraphPage : ContentPage
     {
         InitializeComponent();
         BindingContext = viewModel;
+        BackgroundColor = Colors.White;
+        Title = "Grafiek";
     }
 }

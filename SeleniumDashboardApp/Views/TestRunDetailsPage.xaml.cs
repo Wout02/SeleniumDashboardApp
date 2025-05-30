@@ -10,5 +10,7 @@ public partial class TestRunDetailsPage : ContentPage
     {
         InitializeComponent();
         BindingContext = viewModel;
+        BackgroundColor = Colors.White;
+        Title = "Test Run Details";
     }
 }

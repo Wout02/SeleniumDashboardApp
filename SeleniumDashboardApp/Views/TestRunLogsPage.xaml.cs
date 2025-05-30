@@ -10,6 +10,7 @@ public partial class TestRunLogsPage : ContentPage
     {
         InitializeComponent();
         BindingContext = viewModel;
+        BackgroundColor = Colors.White;
+        Title = "Logs";
     }
 }
-
