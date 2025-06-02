@@ -3,5 +3,22 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="SeleniumDashboardApp.Views.Tabs.LogsView">
 
-	<Label Text="Logs inhoud hier" />
+    <VerticalStackLayout Padding="20" Spacing="12">
+        <Label Text="Logboek"
+               FontSize="20"
+               FontAttributes="Bold"
+               TextColor="{StaticResource PrimaryText}" />
+
+        <Label Text="Log informatie voor de geselecteerde test:" 
+               TextColor="{StaticResource PrimaryText}" />
+
+        <!-- Voorbeeld log -->
+        <Label Text="{Binding SelectedTestRun.Summary}" 
+               TextColor="{StaticResource PrimaryText}" />
+
+        <!-- Placeholder als er geen logs zijn -->
+        <Label Text="(Gedetailleerde logs kunnen hier worden weergegeven)"
+               FontAttributes="Italic"
+               TextColor="Gray" />
+    </VerticalStackLayout>
 </ContentView>

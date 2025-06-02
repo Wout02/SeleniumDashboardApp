@@ -49,6 +49,23 @@
         </Setter>
     </Style>
 
+    <Style x:Key="TabButtonBaseStyle" TargetType="Button">
+        <Setter Property="CornerRadius" Value="20" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="Padding" Value="12,6" />
+        <Setter Property="Margin" Value="4,0" />
+        <Setter Property="BorderColor" Value="{StaticResource AccentColor}" />
+        <Setter Property="BorderWidth" Value="2" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="{StaticResource AccentColor}" />
+    </Style>
+
+    <Style x:Key="TabButtonActiveStyle" BasedOn="{StaticResource TabButtonBaseStyle}" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource AccentColor}" />
+        <Setter Property="TextColor" Value="White" />
+    </Style>
+
     <Style TargetType="CheckBox">
         <Setter Property="Color" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}" />
         <Setter Property="MinimumHeightRequest" Value="44"/>

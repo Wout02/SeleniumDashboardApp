@@ -80,6 +80,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="Views\Shared\TopBarView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\Tabs\ChartsView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

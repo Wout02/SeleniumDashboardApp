@@ -2,9 +2,13 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"  
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"  
     xmlns:local="clr-namespace:SeleniumDashboardApp.Helpers"  
-    xmlns:tabs="clr-namespace:SeleniumDashboardApp.Views.Tabs"  
+    xmlns:tabs="clr-namespace:SeleniumDashboardApp.Views.Tabs"
+    xmlns:shared="clr-namespace:SeleniumDashboardApp.Views.Shared"
     x:Class="SeleniumDashboardApp.Views.TestRunDetailPage"  
-    Title="Testdetails">
+    Title="Testdetails"
+    Shell.NavBarIsVisible="False"
+    Padding="0"
+    BackgroundColor="{StaticResource PrimaryBackground}">
 
     <ContentPage.Resources>
         <DataTemplate x:Key="DetailsTemplate">
@@ -23,21 +27,42 @@
                                    ChartsTemplate="{StaticResource ChartsTemplate}" />
     </ContentPage.Resources>
 
-    <VerticalStackLayout Padding="16" Spacing="12">
-        <!-- Tab Knoppen -->
-        <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
-            <Button Text="Details"
-                    Command="{Binding ChangeTabCommand}"
-                    CommandParameter="Details" />
-            <Button Text="Logs"
-                    Command="{Binding ChangeTabCommand}"
-                    CommandParameter="Logs" />
-            <Button Text="Grafieken"
-                    Command="{Binding ChangeTabCommand}"
-                    CommandParameter="Charts" />
-        </HorizontalStackLayout>
+    <Grid RowDefinitions="Auto,*" ColumnDefinitions="*">
 
-        <!-- Vervanging voor ContentControl -->
-        <ContentView x:Name="TabContentView" />
-    </VerticalStackLayout>
+        <!-- 🔝 Topbar vast bovenin -->
+        <shared:TopBarView Grid.Row="0" />
+
+        <!-- 🔽 Tabbed content -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16" Spacing="12">
+                <Label Text="{Binding SelectedTestRun.ProjectName}"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource PrimaryText}"
+                       HorizontalOptions="Center"
+                       Margin="0,10,0,0" />
+
+                <HorizontalStackLayout Spacing="0"
+                       Margin="10,10,0,0"
+                       HorizontalOptions="Start">
+                    <Button Text="Details"
+                            Command="{Binding ChangeTabCommand}"
+                            CommandParameter="Details"
+                            Style="{Binding SelectedTab, Converter={StaticResource TabStyleConverter}, ConverterParameter=Details}" />
+
+                    <Button Text="Logs"
+                            Command="{Binding ChangeTabCommand}"
+                            CommandParameter="Logs"
+                            Style="{Binding SelectedTab, Converter={StaticResource TabStyleConverter}, ConverterParameter=Logs}" />
+
+                    <Button Text="Grafieken"
+                            Command="{Binding ChangeTabCommand}"
+                            CommandParameter="Charts"
+                            Style="{Binding SelectedTab, Converter={StaticResource TabStyleConverter}, ConverterParameter=Charts}" />
+                </HorizontalStackLayout>
+                
+                <ContentView x:Name="TabContentView" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 </ContentPage>

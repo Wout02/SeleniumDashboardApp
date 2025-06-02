@@ -1,7 +1,18 @@
-﻿<ContentView
-    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    x:Class="SeleniumDashboardApp.Views.Tabs.DetailsView">
+﻿<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SeleniumDashboardApp.Views.Tabs.DetailsView">
+    <VerticalStackLayout Padding="20" Spacing="10">
+        <Label Text="Details"
+               FontSize="20"
+               FontAttributes="Bold"
+               TextColor="{StaticResource PrimaryText}" />
+        <Label Text="Project:" FontAttributes="Bold" />
+        <Label Text="{Binding SelectedTestRun.ProjectName}" TextColor="Black" />
 
-	<Label Text="Details inhoud hier" />
+        <Label Text="Status:" FontAttributes="Bold" />
+        <Label Text="{Binding SelectedTestRun.Status}" TextColor="Black" />
+
+        <Label Text="Datum:" FontAttributes="Bold" />
+        <Label Text="{Binding SelectedTestRun.Date, StringFormat='{}{0:dd-MM-yyyy HH:mm}'}" TextColor="Black" />
+    </VerticalStackLayout>
 </ContentView>
