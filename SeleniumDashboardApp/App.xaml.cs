@@ -9,7 +9,8 @@
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new AppShell());
+            // Zorgt voor navigatie-ondersteuning
+            return new Window(new NavigationPage(new AppShell()));
         }
     }
 }

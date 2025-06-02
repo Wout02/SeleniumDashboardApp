@@ -39,7 +39,6 @@ public partial class DashboardViewModel : ObservableObject
         SearchProject = string.Empty;
     }
 
-    // Voor UI-weergave in het label "Status: Passed/Failed"
     public string SelectedStatus =>
         IsStatusPassedSelected ? "Passed" :
         IsStatusFailedSelected ? "Failed" :
@@ -106,7 +105,6 @@ public partial class DashboardViewModel : ObservableObject
         if (!string.IsNullOrWhiteSpace(SearchProject))
             filtered = filtered.Where(r => r.ProjectName.Contains(SearchProject, StringComparison.OrdinalIgnoreCase)).ToList();
 
-        // Convert LocalTestRun to TestRun
         var converted = filtered.Select(run => new TestRun
         {
             Id = run.Id,

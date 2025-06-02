@@ -80,16 +80,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="Views\TestRunDetailsPage.xaml">
+	  <MauiXaml Update="Views\Tabs\ChartsView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\TestRunDetailsTabbedPage.xaml">
+	  <MauiXaml Update="Views\Tabs\DetailsView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\TestRunGraphPage.xaml">
+	  <MauiXaml Update="Views\Tabs\LogsView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\TestRunLogsPage.xaml">
+	  <MauiXaml Update="Views\TestRunDetailPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>

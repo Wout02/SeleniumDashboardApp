@@ -14,7 +14,16 @@ namespace SeleniumDashboardApp.Services
         }
 
         public Task<List<LocalTestRun>> GetTestRunsAsync() => _db.Table<LocalTestRun>().ToListAsync();
+
         public Task<int> SaveTestRunAsync(LocalTestRun run) => _db.InsertAsync(run);
+
         public Task<int> DeleteAllAsync() => _db.DeleteAllAsync<LocalTestRun>();
+
+        public Task<LocalTestRun?> GetTestRunByIdAsync(int id)
+        {
+            return _db.Table<LocalTestRun>()
+                      .Where(run => run.Id == id)
+                      .FirstOrDefaultAsync();
+        }
     }
 }

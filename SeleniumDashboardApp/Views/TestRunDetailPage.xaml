@@ -1,0 +1,43 @@
+﻿<ContentPage  
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"  
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"  
+    xmlns:local="clr-namespace:SeleniumDashboardApp.Helpers"  
+    xmlns:tabs="clr-namespace:SeleniumDashboardApp.Views.Tabs"  
+    x:Class="SeleniumDashboardApp.Views.TestRunDetailPage"  
+    Title="Testdetails">
+
+    <ContentPage.Resources>
+        <DataTemplate x:Key="DetailsTemplate">
+            <tabs:DetailsView />
+        </DataTemplate>
+        <DataTemplate x:Key="LogsTemplate">
+            <tabs:LogsView />
+        </DataTemplate>
+        <DataTemplate x:Key="ChartsTemplate">
+            <tabs:ChartsView />
+        </DataTemplate>
+
+        <local:TabTemplateSelector x:Key="TabSelector"  
+                                   DetailsTemplate="{StaticResource DetailsTemplate}"  
+                                   LogsTemplate="{StaticResource LogsTemplate}"  
+                                   ChartsTemplate="{StaticResource ChartsTemplate}" />
+    </ContentPage.Resources>
+
+    <VerticalStackLayout Padding="16" Spacing="12">
+        <!-- Tab Knoppen -->
+        <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+            <Button Text="Details"
+                    Command="{Binding ChangeTabCommand}"
+                    CommandParameter="Details" />
+            <Button Text="Logs"
+                    Command="{Binding ChangeTabCommand}"
+                    CommandParameter="Logs" />
+            <Button Text="Grafieken"
+                    Command="{Binding ChangeTabCommand}"
+                    CommandParameter="Charts" />
+        </HorizontalStackLayout>
+
+        <!-- Vervanging voor ContentControl -->
+        <ContentView x:Name="TabContentView" />
+    </VerticalStackLayout>
+</ContentPage>

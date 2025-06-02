@@ -115,9 +115,10 @@
                        Text="{Binding SelectedStatus, StringFormat='Status: {0}'}" />
 
                 <!-- Testrun resultaten -->
-                <CollectionView ItemsSource="{Binding TestRuns}"
-                SelectionMode="Single"
-                SelectionChanged="OnTestRunTapped">
+                <CollectionView x:Name="TestRunsCollectionView"
+                                ItemsSource="{Binding TestRuns}"
+                                SelectionMode="Single"
+                                SelectionChanged="OnTestRunTapped">
 
                     <CollectionView.ItemsLayout>
                         <LinearItemsLayout Orientation="Vertical" ItemSpacing="5" />
