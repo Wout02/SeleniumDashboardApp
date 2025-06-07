@@ -52,5 +52,18 @@ namespace SeleniumDashboardApi.Controllers
             if (run == null) return NotFound();
             return Ok(run);
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTestRun(int id)
+        {
+            var run = await _context.TestRuns.FindAsync(id);
+            if (run == null)
+                return NotFound();
+
+            _context.TestRuns.Remove(run);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }

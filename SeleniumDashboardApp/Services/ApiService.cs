@@ -44,5 +44,19 @@ namespace SeleniumDashboardApp.Services
                 return null;
             }
         }
+
+        public async Task<bool> DeleteTestRunAsync(int id)
+        {
+            try
+            {
+                var response = await _http.DeleteAsync($"api/testrun/{id}");
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[DELETE ERROR] {ex.Message}");
+                return false;
+            }
+        }
     }
 }

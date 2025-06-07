@@ -19,6 +19,13 @@ namespace SeleniumDashboardApp.Services
 
         public Task<int> DeleteAllAsync() => _db.DeleteAllAsync<LocalTestRun>();
 
+        public Task<int> DeleteTestRunByIdAsync(int backendId)
+        {
+            return _db.Table<LocalTestRun>()
+                      .Where(run => run.BackendId == backendId)
+                      .DeleteAsync();
+        }
+
         public Task<LocalTestRun?> GetTestRunByIdAsync(int backendId)
         {
             return _db.Table<LocalTestRun>()

@@ -10,12 +10,14 @@ public partial class MainPage : ContentPage
 {
     private readonly LocalDatabaseService _database;
     private readonly IServiceProvider _serviceProvider;
+    private readonly ApiService _apiService;
 
-    public MainPage(DashboardViewModel viewModel, LocalDatabaseService database, IServiceProvider serviceProvider)
+    public MainPage(DashboardViewModel viewModel, LocalDatabaseService database, ApiService apiService, IServiceProvider serviceProvider)
     {
         InitializeComponent();
         BindingContext = viewModel;
         _database = database;
+        _apiService = apiService;
         _serviceProvider = serviceProvider;
         BackgroundColor = Colors.White;
         Title = "Selenium Dashboard";
@@ -58,5 +60,32 @@ public partial class MainPage : ContentPage
         }
 
         TestRunsCollectionView.SelectedItem = null;
+    }
+
+    private async void OnDeleteTestRun(object sender, EventArgs e)
+    {
+        if (sender is Button button && button.CommandParameter is int id)
+        {
+            var confirm = await DisplayAlert("Verwijderen", "Weet je zeker dat je deze testrun wilt verwijderen?", "Ja", "Annuleren");
+            if (!confirm) return;
+
+            var backendSuccess = await _apiService.DeleteTestRunAsync(id);
+
+            if (backendSuccess)
+            {
+                await _database.DeleteTestRunByIdAsync(id);
+
+                if (BindingContext is DashboardViewModel viewModel)
+                {
+                    await viewModel.RefreshTestRuns();
+                }
+
+                await DisplayAlert("Verwijderd", "Testrun is verwijderd uit backend en database.", "OK");
+            }
+            else
+            {
+                await DisplayAlert("Fout", "Kan testrun niet verwijderen uit backend.", "OK");
+            }
+        }
     }
 }
