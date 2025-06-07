@@ -8,35 +8,58 @@
     <VerticalStackLayout Padding="20" Spacing="12">
         <!-- Titel -->
         <Label Text="Logboek"
-               FontSize="20"
-               FontAttributes="Bold"
-               TextColor="{StaticResource PrimaryText}" />
+           FontSize="20"
+           FontAttributes="Bold"
+           TextColor="{StaticResource PrimaryText}" />
 
         <!-- Intro -->
         <Label Text="Loginformatie voor de geselecteerde test:"
-               FontSize="14"
-               TextColor="{StaticResource PrimaryText}" />
+           FontSize="14"
+           TextColor="{StaticResource PrimaryText}" />
 
-        <!-- Samenvatting test -->
+        <!-- Samenvatting -->
         <Label Text="{Binding SelectedTestRun.Summary}"
-               FontAttributes="Italic"
-               TextColor="{StaticResource PrimaryText}" />
+           FontAttributes="Italic"
+           TextColor="{StaticResource PrimaryText}" />
 
-        <!-- Logoutput als multiline tekst -->
+        <!-- Logoutput -->
         <ScrollView>
             <Frame BackgroundColor="#eeeeee"
-                   BorderColor="Black"
-                   Padding="12"
-                   CornerRadius="4"
-                   Margin="0,10,0,0">
-                <Editor Text="{Binding SelectedTestRun.LogOutput}"
-                        FontFamily="Courier New"
-                        FontSize="12"
-                        TextColor="Black"
-                        BackgroundColor="Transparent"
-                        AutoSize="TextChanges"
-                        IsReadOnly="True" />
+               BorderColor="Black"
+               Padding="12"
+               CornerRadius="4"
+               Margin="0,10,0,0">
+                <Editor x:Name="LogEditor"
+                    Text="{Binding SelectedTestRun.LogOutput}"
+                    FontFamily="Courier New"
+                    FontSize="12"
+                    TextColor="Black"
+                    BackgroundColor="Transparent"
+                    AutoSize="TextChanges"
+                    IsReadOnly="True" />
             </Frame>
         </ScrollView>
+
+        <!-- Knoppen onder log, links uitgelijnd -->
+        <HorizontalStackLayout HorizontalOptions="Start"
+                       Spacing="12"
+                       Margin="0,10,0,0">
+            <Button Text="📋"
+            WidthRequest="40"
+            HeightRequest="40"
+            CornerRadius="6"
+            FontSize="16"
+            Clicked="OnCopyClicked"
+            BackgroundColor="#cccccc"
+            TextColor="Black" />
+            <Button Text="⬇️"
+            WidthRequest="40"
+            HeightRequest="40"
+            CornerRadius="6"
+            FontSize="16"
+            Clicked="OnDownloadClicked"
+            BackgroundColor="#cccccc"
+            TextColor="Black" />
+        </HorizontalStackLayout>
     </VerticalStackLayout>
 </ContentView>
