@@ -13,5 +13,6 @@ namespace SeleniumDashboard.Shared
         public string Status { get; set; }
         public DateTime Date { get; set; }
         public string Summary { get; set; }
+        public string? LogOutput { get; set; }
     }
 }

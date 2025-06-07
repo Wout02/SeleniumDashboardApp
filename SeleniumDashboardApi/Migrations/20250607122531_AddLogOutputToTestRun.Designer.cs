@@ -12,8 +12,8 @@ using SeleniumDashboardApi.Data;
 namespace SeleniumDashboardApi.Migrations
 {
     [DbContext(typeof(TestRunDbContext))]
-    [Migration("20250516102741_InitSqlServer")]
-    partial class InitSqlServer
+    [Migration("20250607122531_AddLogOutputToTestRun")]
+    partial class AddLogOutputToTestRun
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,6 +35,9 @@ namespace SeleniumDashboardApi.Migrations
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("LogOutput")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProjectName")
                         .IsRequired()

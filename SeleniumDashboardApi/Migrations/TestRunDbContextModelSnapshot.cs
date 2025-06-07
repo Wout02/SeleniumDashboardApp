@@ -33,6 +33,9 @@ namespace SeleniumDashboardApi.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("LogOutput")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ProjectName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

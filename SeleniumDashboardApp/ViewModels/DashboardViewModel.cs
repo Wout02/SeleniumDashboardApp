@@ -32,6 +32,12 @@ public partial class DashboardViewModel : ObservableObject
     }
 
     [RelayCommand]
+    public async Task RefreshTestRuns()
+    {
+        await LoadAndSyncRunsAsync();
+    }
+
+    [RelayCommand]
     private void ResetFilters()
     {
         IsStatusPassedSelected = false;
@@ -70,17 +76,30 @@ public partial class DashboardViewModel : ObservableObject
             if (runs != null && runs.Count > 0)
             {
                 await _database.DeleteAllAsync();
+
                 foreach (var run in runs)
                 {
-                    var local = new LocalTestRun
+                    // Controleer of de testRun met dit ID daadwerkelijk opgevraagd kan worden
+                    var exists = await _apiService.GetTestRunAsync(run.Id);
+
+                    if (exists != null)
                     {
-                        Id = run.Id,
-                        ProjectName = run.ProjectName,
-                        Status = run.Status,
-                        Date = run.Date,
-                        Summary = run.Summary
-                    };
-                    await _database.SaveTestRunAsync(local);
+                        var local = new LocalTestRun
+                        {
+                            BackendId = run.Id,
+                            ProjectName = run.ProjectName,
+                            Status = run.Status,
+                            Date = run.Date,
+                            Summary = run.Summary,
+                            LogOutput = run.LogOutput
+                        };
+
+                        await _database.SaveTestRunAsync(local);
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[SKIP] Testrun ID {run.Id} niet gevonden in backend.");
+                    }
                 }
             }
         }
@@ -91,6 +110,7 @@ public partial class DashboardViewModel : ObservableObject
 
         await ApplyLocalFiltersAsync();
     }
+
 
     private async Task ApplyLocalFiltersAsync()
     {
@@ -107,11 +127,12 @@ public partial class DashboardViewModel : ObservableObject
 
         var converted = filtered.Select(run => new TestRun
         {
-            Id = run.Id,
+            Id = run.BackendId,
             ProjectName = run.ProjectName,
             Status = run.Status,
             Date = run.Date,
-            Summary = run.Summary
+            Summary = run.Summary,
+            LogOutput = run.LogOutput
         }).ToList();
 
         TestRuns = new ObservableCollection<TestRun>(converted);

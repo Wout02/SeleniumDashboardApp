@@ -30,5 +30,19 @@ namespace SeleniumDashboardApp.Services
         {
             return await _http.GetStringAsync(endpoint);
         }
+
+        public async Task<TestRun?> GetTestRunAsync(int id)
+        {
+            try
+            {
+                var json = await _http.GetStringAsync($"api/testrun/{id}");
+                return JsonConvert.DeserializeObject<TestRun>(json);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[GET SINGLE TESTRUN ERROR] {ex.Message}");
+                return null;
+            }
+        }
     }
 }

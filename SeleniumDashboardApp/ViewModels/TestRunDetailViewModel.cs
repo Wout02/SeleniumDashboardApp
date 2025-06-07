@@ -1,19 +1,16 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.Windows.Input;
-using SeleniumDashboardApp.Models;
+using SeleniumDashboard.Shared;
 using SeleniumDashboardApp.Services;
 
 namespace SeleniumDashboardApp.ViewModels;
 
-public class TestRunDetailViewModel : ObservableObject
+public partial class TestRunDetailViewModel : ObservableObject
 {
-    private readonly LocalDatabaseService _database;
+    private readonly ApiService _apiService;
 
-    public TestRunDetailViewModel(LocalDatabaseService database)
-    {
-        _database = database;
-        ChangeTabCommand = new Command<string>(tab => SelectedTab = tab);
-    }
+    [ObservableProperty]
+    private TestRun? selectedTestRun;
 
     private string _selectedTab = "Details";
     public string SelectedTab
@@ -22,21 +19,25 @@ public class TestRunDetailViewModel : ObservableObject
         set => SetProperty(ref _selectedTab, value);
     }
 
-    private LocalTestRun? _selectedTestRun;
-    public LocalTestRun? SelectedTestRun
-    {
-        get => _selectedTestRun;
-        set => SetProperty(ref _selectedTestRun, value);
-    }
-
     public ICommand ChangeTabCommand { get; }
+
+    public TestRunDetailViewModel(ApiService apiService)
+    {
+        _apiService = apiService;
+        ChangeTabCommand = new Command<string>(tab => SelectedTab = tab);
+    }
 
     public async Task LoadTestRunById(int id)
     {
-        var testRun = await _database.GetTestRunByIdAsync(id);
+        Console.WriteLine($"[DEBUG] Ophalen van testrun met ID {id}");
+        var testRun = await _apiService.GetTestRunAsync(id);
+        Console.WriteLine($"[DEBUG] API-response: {(testRun != null ? "OK" : "null")}");
         if (testRun != null)
         {
             SelectedTestRun = testRun;
+
+            Console.WriteLine($"[DEBUG] Summary: {testRun.Summary}");
+            Console.WriteLine($"[DEBUG] LogOutput: {testRun.LogOutput}");
         }
     }
 }

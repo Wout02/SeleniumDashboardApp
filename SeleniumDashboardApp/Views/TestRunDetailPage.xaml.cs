@@ -9,13 +9,17 @@ public partial class TestRunDetailPage : ContentPage
     private readonly TabTemplateSelector _templateSelector;
     private readonly TestRunDetailViewModel _viewModel;
 
-    public TestRunDetailPage(TestRunDetailViewModel viewModel)
+    public TestRunDetailPage(TestRunDetailViewModel viewModel, int testRunId)
     {
         InitializeComponent();
         _viewModel = viewModel;
         BindingContext = _viewModel;
 
-        // Init TabTemplateSelector
+        // Testrun + logs laden via API
+        Console.WriteLine($"[DEBUG] TestRunDetailPage constructor - ID: {testRunId}");
+        _ = _viewModel.LoadTestRunById(testRunId);
+
+        // Tabs instellen
         _templateSelector = new TabTemplateSelector
         {
             DetailsTemplate = new DataTemplate(typeof(DetailsView)),
@@ -38,10 +42,18 @@ public partial class TestRunDetailPage : ContentPage
 
     private void UpdateTabContent()
     {
-        var content = _templateSelector
-            .SelectTemplate(_viewModel.SelectedTab, this)
-            .CreateContent() as View;
+        var template = _templateSelector.SelectTemplate(_viewModel.SelectedTab, this);
+        var content = template.CreateContent();
 
-        TabContentView.Content = content;
+        if (content is View view)
+        {
+            view.BindingContext = _viewModel;
+            TabContentView.Content = view;
+        }
+        else if (content is ViewCell cell && cell.View is View innerView)
+        {
+            innerView.BindingContext = _viewModel;
+            TabContentView.Content = innerView;
+        }
     }
 }

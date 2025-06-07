@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SeleniumDashboardApi.Migrations
 {
     /// <inheritdoc />
-    public partial class InitSqlServer : Migration
+    public partial class AddLogOutputToTestRun : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,7 +20,8 @@ namespace SeleniumDashboardApi.Migrations
                     ProjectName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Summary = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Summary = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LogOutput = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {

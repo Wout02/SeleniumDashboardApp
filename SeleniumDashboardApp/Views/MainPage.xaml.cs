@@ -52,9 +52,8 @@ public partial class MainPage : ContentPage
             Console.WriteLine($"Geselecteerde run: {selectedRun.Id}");
 
             var viewModel = _serviceProvider.GetService<TestRunDetailViewModel>();
-            await viewModel.LoadTestRunById(selectedRun.Id);
 
-            var page = new TestRunDetailPage(viewModel);
+            var page = new TestRunDetailPage(viewModel, selectedRun.Id);
             await Navigation.PushAsync(page, animated: true);
         }
 

@@ -12,6 +12,7 @@
             </ResourceDictionary.MergedDictionaries>
 
             <converters:TabStyleConverter x:Key="TabStyleConverter" />
+            <converters:NullOrEmptyToBoolConverter x:Key="NullOrEmptyToBoolConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>
