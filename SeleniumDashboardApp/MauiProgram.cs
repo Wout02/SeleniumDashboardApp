@@ -1,9 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
+﻿// MauiProgram.cs - Fix for Microcharts.Maui 1.0.0
+using Microsoft.Extensions.Logging;
 using SeleniumDashboardApp.Services;
 using SeleniumDashboardApp.ViewModels;
 using SeleniumDashboardApp.Views;
 using CommunityToolkit.Maui;
-using SeleniumDashboardApp.ViewModels;
+using SkiaSharp.Views.Maui.Controls.Hosting;
+using Microcharts.Maui;
+using SeleniumDashboardApp.Views.Tabs;
 
 namespace SeleniumDashboardApp;
 
@@ -14,7 +17,9 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
+            .UseSkiaSharp()
             .UseMauiCommunityToolkit()
+            .UseMicrocharts() // This should work with 1.0.0
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -26,7 +31,7 @@ public static class MauiProgram
         builder.Services.AddSingleton(new LocalDatabaseService(dbPath));
         builder.Services.AddHttpClient<ApiService>(client =>
         {
-            client.BaseAddress = new Uri("https://3103-84-83-178-6.ngrok-free.app/");
+            client.BaseAddress = new Uri("https://bd21-84-83-178-6.ngrok-free.app/");
         });
 
         // ViewModels
@@ -36,6 +41,7 @@ public static class MauiProgram
         // Pages
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<TestRunDetailPage>();
+
 
 #if DEBUG
         builder.Configuration["DisableDebugToolbar"] = "true";

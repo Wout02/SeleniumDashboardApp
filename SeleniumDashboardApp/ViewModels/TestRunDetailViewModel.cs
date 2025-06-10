@@ -2,6 +2,8 @@
 using System.Windows.Input;
 using SeleniumDashboard.Shared;
 using SeleniumDashboardApp.Services;
+using Microcharts;
+using SkiaSharp;
 
 namespace SeleniumDashboardApp.ViewModels;
 
@@ -12,11 +14,23 @@ public partial class TestRunDetailViewModel : ObservableObject
     [ObservableProperty]
     private TestRun? selectedTestRun;
 
+    [ObservableProperty]
+    private Chart? barChart;
+
     private string _selectedTab = "Details";
     public string SelectedTab
     {
         get => _selectedTab;
-        set => SetProperty(ref _selectedTab, value);
+        set
+        {
+            if (SetProperty(ref _selectedTab, value))
+            {
+                if (value == "Charts" && BarChart == null)
+                {
+                    CreateTestChart();
+                }
+            }
+        }
     }
 
     public ICommand ChangeTabCommand { get; }
@@ -35,9 +49,35 @@ public partial class TestRunDetailViewModel : ObservableObject
         if (testRun != null)
         {
             SelectedTestRun = testRun;
-
             Console.WriteLine($"[DEBUG] Summary: {testRun.Summary}");
             Console.WriteLine($"[DEBUG] LogOutput: {testRun.LogOutput}");
         }
+    }
+
+    private void CreateTestChart()
+    {
+        var entries = new[]
+        {
+            new ChartEntry(5)
+            {
+                Label = "Passed",
+                ValueLabel = "5",
+                Color = SKColors.Green
+            },
+            new ChartEntry(2)
+            {
+                Label = "Failed",
+                ValueLabel = "2",
+                Color = SKColors.Red
+            }
+        };
+
+        BarChart = new BarChart
+        {
+            Entries = entries,
+            LabelTextSize = 16f,
+            ValueLabelTextSize = 14f,
+            BackgroundColor = SKColors.Transparent
+        };
     }
 }
