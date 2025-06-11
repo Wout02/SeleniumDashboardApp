@@ -23,22 +23,28 @@
         <!-- 🔍 en ⚙️ knoppen onder topbar -->
         <HorizontalStackLayout Grid.Row="1" Padding="20,10,20,0" Spacing="10">
             <Button Text="🔍"
-                    Clicked="OnToggleSearchClicked"
-                    BackgroundColor="#E0E0E0"
-                    TextColor="Black"
-                    CornerRadius="8"
-                    WidthRequest="50" />
+            Clicked="OnToggleSearchClicked"
+            BackgroundColor="#E0E0E0"
+            TextColor="Black"
+            CornerRadius="8"
+            WidthRequest="50" />
 
             <Button Text="⚙️"
-                    Clicked="OnToggleFilterClicked"
-                    BackgroundColor="#E0E0E0"
-                    TextColor="Black"
-                    CornerRadius="8"
-                    WidthRequest="50" />
-            
-            <Button Text="🔄 Ververs"
-                    Command="{Binding RefreshTestRunsCommand}" />
+            Clicked="OnToggleFilterClicked"
+            BackgroundColor="#E0E0E0"
+            TextColor="Black"
+            CornerRadius="8"
+            WidthRequest="50" />
 
+            <!-- Spacer -->
+            <Label HorizontalOptions="FillAndExpand" />
+
+            <!-- Rechts uitgelijnde knop -->
+            <Button Text="🔄 Ververs"
+            Command="{Binding RefreshTestRunsCommand}"
+            BackgroundColor="#E0E0E0"
+            TextColor="Black"
+            CornerRadius="8" />
         </HorizontalStackLayout>
 
         <!-- Inhoud -->
