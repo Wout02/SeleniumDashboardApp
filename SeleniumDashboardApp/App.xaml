@@ -13,6 +13,7 @@
 
             <converters:TabStyleConverter x:Key="TabStyleConverter" />
             <converters:NullOrEmptyToBoolConverter x:Key="NullOrEmptyToBoolConverter" />
+            <converters:StatusColorConverter x:Key="StatusColorConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -5,20 +5,43 @@
     x:Class="SeleniumDashboardApp.Views.Tabs.ChartsView">
 
     <VerticalStackLayout Padding="20" Spacing="16">
-        <Label Text="Grafieken"
-               FontSize="20"
-               FontAttributes="Bold"
-               TextColor="Black" />
 
-        <HorizontalStackLayout>
+        <!-- Titel -->
+        <Label Text="Grafieken" FontSize="20" FontAttributes="Bold" />
+
+        <!-- Switch -->
+        <HorizontalStackLayout Spacing="10">
             <Label Text="Toon totalen" VerticalOptions="Center" />
-            <Switch IsToggled="{Binding ShowAggregateData}"
-                    Toggled="OnToggleChartScope" />
+            <Switch IsToggled="{Binding ShowAggregateData}" Toggled="OnToggleChartScope" />
         </HorizontalStackLayout>
 
-        <charts:ChartView Chart="{Binding BarChart1}" HeightRequest="200" />
-        <charts:ChartView Chart="{Binding BarChart2}" HeightRequest="200" />
-        <charts:ChartView Chart="{Binding BarChart3}" HeightRequest="200" />
-        <charts:ChartView Chart="{Binding BarChart4}" HeightRequest="200" />
+        <!-- Legenda -->
+        <HorizontalStackLayout Spacing="20" Margin="0,0,0,10">
+            <HorizontalStackLayout Spacing="6">
+                <BoxView WidthRequest="14" HeightRequest="14" Color="Red" VerticalOptions="Center" />
+                <Label Text="Failed" FontSize="13" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Spacing="6">
+                <BoxView WidthRequest="14" HeightRequest="14" Color="Green" VerticalOptions="Center" />
+                <Label Text="Passed" FontSize="13" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+        </HorizontalStackLayout>
+
+        <!-- Grafieken als flexibele layout -->
+        <FlexLayout Wrap="Wrap" JustifyContent="SpaceBetween" AlignItems="Start">
+            <Frame BorderColor="Black" Padding="0" Margin="0,0,10,10" WidthRequest="300" HeightRequest="200">
+                <charts:ChartView Chart="{Binding BarChart1}" />
+            </Frame>
+            <Frame BorderColor="Black" Padding="0" Margin="0,0,10,10" WidthRequest="300" HeightRequest="200">
+                <charts:ChartView Chart="{Binding BarChart2}" />
+            </Frame>
+            <Frame BorderColor="Black" Padding="0" Margin="0,0,10,10" WidthRequest="300" HeightRequest="200">
+                <charts:ChartView Chart="{Binding BarChart3}" />
+            </Frame>
+            <Frame BorderColor="Black" Padding="0" Margin="0,0,10,10" WidthRequest="300" HeightRequest="200">
+                <charts:ChartView Chart="{Binding BarChart4}" />
+            </Frame>
+        </FlexLayout>
+
     </VerticalStackLayout>
 </ContentView>

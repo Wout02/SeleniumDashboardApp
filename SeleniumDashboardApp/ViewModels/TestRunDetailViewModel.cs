@@ -49,11 +49,23 @@ public partial class TestRunDetailViewModel : ObservableObject
     public async Task LoadTestRunById(int id)
     {
         var testRun = await _apiService.GetTestRunAsync(id);
+
         if (testRun != null)
         {
+            if (string.IsNullOrWhiteSpace(testRun.LogOutput))
+            {
+                testRun.LogOutput = "[PASSED] TestA\n[FAILED] TestB\n[PASSED] TestC\n[PASSED] TestD";
+                Console.WriteLine("[DEBUG] Dummy logoutput toegevoegd");
+            }
+
             SelectedTestRun = testRun;
         }
+        else
+        {
+            Console.WriteLine("[DEBUG] Geen testRun ontvangen van API");
+        }
     }
+
 
     public async Task LoadChartsAsync()
     {
