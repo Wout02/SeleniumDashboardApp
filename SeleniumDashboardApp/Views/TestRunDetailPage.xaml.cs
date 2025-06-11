@@ -42,18 +42,26 @@ public partial class TestRunDetailPage : ContentPage
 
     private void UpdateTabContent()
     {
+        Console.WriteLine($"[TAB] Gewijzigd naar: {_viewModel.SelectedTab}");
+
         var template = _templateSelector.SelectTemplate(_viewModel.SelectedTab, this);
         var content = template.CreateContent();
 
         if (content is View view)
         {
+            Console.WriteLine($"[TAB] View geladen: {view.GetType().Name}");
             view.BindingContext = _viewModel;
             TabContentView.Content = view;
         }
         else if (content is ViewCell cell && cell.View is View innerView)
         {
+            Console.WriteLine($"[TAB] ViewCell geladen: {innerView.GetType().Name}");
             innerView.BindingContext = _viewModel;
             TabContentView.Content = innerView;
+        }
+        else
+        {
+            Console.WriteLine($"[TAB] Geen geldige content geladen.");
         }
     }
 }

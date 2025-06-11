@@ -1,27 +1,24 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:charts="clr-namespace:Microcharts.Maui;assembly=Microcharts.Maui"
-             xmlns:vm="clr-namespace:SeleniumDashboardApp.ViewModels"
-             x:Class="SeleniumDashboardApp.Views.Tabs.ChartsView">
+﻿<ContentView
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:charts="clr-namespace:Microcharts.Maui;assembly=Microcharts.Maui"
+    x:Class="SeleniumDashboardApp.Views.Tabs.ChartsView">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20">
-            <Label Text="Testresultaten (Passed/Failed)" 
-                   FontSize="20" 
-                   HorizontalOptions="Center" />
+    <VerticalStackLayout Padding="20" Spacing="16">
+        <Label Text="Grafieken"
+               FontSize="20"
+               FontAttributes="Bold"
+               TextColor="Black" />
 
-            <Border BackgroundColor="White" 
-                    Stroke="Black" 
-                    StrokeThickness="1"
-                    HeightRequest="300">
-                <charts:ChartView Chart="{Binding BarChart}" />
-            </Border>
+        <HorizontalStackLayout>
+            <Label Text="Toon totalen" VerticalOptions="Center" />
+            <Switch IsToggled="{Binding ShowAggregateData}"
+                    Toggled="OnToggleChartScope" />
+        </HorizontalStackLayout>
 
-            <!-- Debug info -->
-            <Label Text="{Binding BarChart, StringFormat='Chart object: {0}'}" 
-                   FontSize="12" 
-                   TextColor="Gray" />
-        </VerticalStackLayout>
-    </ScrollView>
+        <charts:ChartView Chart="{Binding BarChart1}" HeightRequest="200" />
+        <charts:ChartView Chart="{Binding BarChart2}" HeightRequest="200" />
+        <charts:ChartView Chart="{Binding BarChart3}" HeightRequest="200" />
+        <charts:ChartView Chart="{Binding BarChart4}" HeightRequest="200" />
+    </VerticalStackLayout>
 </ContentView>

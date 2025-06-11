@@ -10,13 +10,21 @@ public class TabTemplateSelector : DataTemplateSelector
 
     protected override DataTemplate OnSelectTemplate(object item, BindableObject container)
     {
-        var tab = item as string;
-        return tab switch
+        Console.WriteLine($"[TAB TEMPLATE SELECTOR] Item = {item}");
+
+        if (item?.ToString() == "Charts")
         {
-            "Details" => DetailsTemplate,
-            "Logs" => LogsTemplate,
-            "Charts" => ChartsTemplate,
-            _ => DetailsTemplate,
-        };
+            Console.WriteLine("[TAB TEMPLATE SELECTOR] ChartsTemplate wordt gebruikt");
+            return ChartsTemplate;
+        }
+
+        if (item?.ToString() == "Logs")
+        {
+            Console.WriteLine("[TAB TEMPLATE SELECTOR] LogsTemplate wordt gebruikt");
+            return LogsTemplate;
+        }
+
+        Console.WriteLine("[TAB TEMPLATE SELECTOR] Fallback naar DetailsTemplate");
+        return DetailsTemplate;
     }
 }
