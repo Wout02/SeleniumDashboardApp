@@ -1,25 +1,27 @@
 ﻿<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="SeleniumDashboardApp.Views.Shared.TopBarView"
-			 Padding="0"
+             Padding="0"
              Margin="0">
-	<Grid Padding="12" BackgroundColor="{StaticResource AccentColor}">
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="*" />
-			<ColumnDefinition Width="Auto" />
-		</Grid.ColumnDefinitions>
+    <Grid Padding="12" BackgroundColor="{StaticResource AccentColor}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
 
-		<Label Text="Selenium Dashboard"
+        <Label Text="Selenium Dashboard"
                FontSize="22"
                FontAttributes="Bold"
                VerticalOptions="Center"
                TextColor="{StaticResource HeaderTextColor}"
                Grid.Column="0" />
 
-		<Button Text="🔐"
+        <Button Text="Uitloggen"
+                FontSize="14"
+                Padding="8,4"
                 BackgroundColor="Transparent"
-                FontSize="18"
                 TextColor="{StaticResource HeaderTextColor}"
+                Clicked="OnLogoutClicked"
                 Grid.Column="1" />
-	</Grid>
+    </Grid>
 </ContentView>
