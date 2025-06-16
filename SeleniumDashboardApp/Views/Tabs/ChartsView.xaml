@@ -1,30 +1,14 @@
-﻿<ContentView
-    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:charts="clr-namespace:Microcharts.Maui;assembly=Microcharts.Maui"
-    x:Class="SeleniumDashboardApp.Views.Tabs.ChartsView">
+﻿<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:charts="clr-namespace:Microcharts.Maui;assembly=Microcharts.Maui"
+             x:Class="SeleniumDashboardApp.Views.Tabs.ChartsView">
 
-    <VerticalStackLayout Padding="20" Spacing="16">
+    <VerticalStackLayout Padding="20">
 
-        <!-- Titel -->
-        <Label Text="Grafieken" FontSize="20" FontAttributes="Bold" />
-
-        <!-- Switch -->
-        <HorizontalStackLayout Spacing="10">
-            <Label Text="Toon totalen" VerticalOptions="Center" />
-            <Switch IsToggled="{Binding ShowAggregateData}" Toggled="OnToggleChartScope" />
-        </HorizontalStackLayout>
-
-        <!-- Legenda -->
-        <HorizontalStackLayout Spacing="20" Margin="0,0,0,10">
-            <HorizontalStackLayout Spacing="6">
-                <BoxView WidthRequest="14" HeightRequest="14" Color="Red" VerticalOptions="Center" />
-                <Label Text="Failed" FontSize="13" VerticalOptions="Center" />
-            </HorizontalStackLayout>
-            <HorizontalStackLayout Spacing="6">
-                <BoxView WidthRequest="14" HeightRequest="14" Color="Green" VerticalOptions="Center" />
-                <Label Text="Passed" FontSize="13" VerticalOptions="Center" />
-            </HorizontalStackLayout>
+        <!-- Toggle voor alle testruns of enkel geselecteerde -->
+        <HorizontalStackLayout>
+            <Label Text="Toon alle testruns" VerticalOptions="Center" />
+            <Switch IsToggled="{Binding ShowAggregateData, Mode=TwoWay}" />
         </HorizontalStackLayout>
 
         <!-- Grafieken als flexibele layout -->
@@ -37,9 +21,6 @@
             </Frame>
             <Frame BorderColor="Black" Padding="0" Margin="0,0,10,10" WidthRequest="300" HeightRequest="200">
                 <charts:ChartView Chart="{Binding BarChart3}" />
-            </Frame>
-            <Frame BorderColor="Black" Padding="0" Margin="0,0,10,10" WidthRequest="300" HeightRequest="200">
-                <charts:ChartView Chart="{Binding BarChart4}" />
             </Frame>
         </FlexLayout>
 
