@@ -16,6 +16,17 @@ public partial class ChartsView : ContentView
         Console.WriteLine("[CHARTS VIEW] Constructor aangeroepen");
     }
 
+    protected override void OnSizeAllocated(double width, double height)
+    {
+        base.OnSizeAllocated(width, height);
+
+        if (width <= 400)
+            VisualStateManager.GoToState(this, "Mobile");
+        else
+            VisualStateManager.GoToState(this, "DesktopOrTablet");
+    }
+
+
     protected override void OnBindingContextChanged()
     {
         base.OnBindingContextChanged();

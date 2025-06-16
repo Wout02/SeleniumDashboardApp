@@ -1,32 +1,78 @@
 ﻿<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:charts="clr-namespace:Microcharts.Maui;assembly=Microcharts.Maui"
-             x:Class="SeleniumDashboardApp.Views.Tabs.ChartsView">
+             x:Class="SeleniumDashboardApp.Views.Tabs.ChartsView"
+             x:Name="Root">
 
-    <VerticalStackLayout Padding="20">
+    <VisualStateManager.VisualStateGroups>
+        <VisualStateGroup x:Name="DeviceStates">
+            <VisualState x:Name="Mobile">
+                <VisualState.Setters>
+                    <Setter TargetName="Chart1" Property="WidthRequest" Value="320" />
+                    <Setter TargetName="Chart1" Property="HeightRequest" Value="260" />
+                    <Setter TargetName="Chart1View" Property="HeightRequest" Value="180" />
 
-        <!-- Toggle voor alle testruns of enkel geselecteerde -->
+                    <Setter TargetName="Chart2" Property="WidthRequest" Value="320" />
+                    <Setter TargetName="Chart2" Property="HeightRequest" Value="260" />
+                    <Setter TargetName="Chart2View" Property="HeightRequest" Value="180" />
+
+                    <Setter TargetName="Chart3" Property="WidthRequest" Value="320" />
+                    <Setter TargetName="Chart3" Property="HeightRequest" Value="260" />
+                    <Setter TargetName="Chart3View" Property="HeightRequest" Value="180" />
+                </VisualState.Setters>
+            </VisualState>
+
+            <VisualState x:Name="DesktopOrTablet">
+                <VisualState.Setters>
+                    <Setter TargetName="Chart1" Property="WidthRequest" Value="500" />
+                    <Setter TargetName="Chart1" Property="HeightRequest" Value="350" />
+                    <Setter TargetName="Chart1View" Property="HeightRequest" Value="250" />
+
+                    <Setter TargetName="Chart2" Property="WidthRequest" Value="500" />
+                    <Setter TargetName="Chart2" Property="HeightRequest" Value="350" />
+                    <Setter TargetName="Chart2View" Property="HeightRequest" Value="250" />
+
+                    <Setter TargetName="Chart3" Property="WidthRequest" Value="500" />
+                    <Setter TargetName="Chart3" Property="HeightRequest" Value="350" />
+                    <Setter TargetName="Chart3View" Property="HeightRequest" Value="250" />
+                </VisualState.Setters>
+            </VisualState>
+        </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+
+    <VerticalStackLayout Padding="20" Spacing="20">
+
         <HorizontalStackLayout>
-            <Label Text="Toon alle testruns" VerticalOptions="Center" />
+            <Label Text="Toon alle testruns" TextColor="{StaticResource PrimaryText}" VerticalOptions="Center" />
             <Switch IsToggled="{Binding ShowAggregateData, Mode=TwoWay}" />
         </HorizontalStackLayout>
 
-        <!-- Grafieken als flexibele layout -->
-        <FlexLayout Wrap="Wrap" JustifyContent="SpaceBetween" AlignItems="Start">
+        <FlexLayout Wrap="Wrap" JustifyContent="Center" AlignItems="Start" AlignContent="Start">
 
-            <Frame BorderColor="Black" BackgroundColor="White" Padding="0" Margin="0,0,10,10" WidthRequest="300" HeightRequest="200">
-                <charts:ChartView Chart="{Binding BarChart1}" BackgroundColor="White" />
+            <!-- Chart 1 -->
+            <Frame x:Name="Chart1" BorderColor="Black" BackgroundColor="White" Padding="10" Margin="10">
+                <VerticalStackLayout>
+                    <Label Text="{Binding BarChart1Title}" TextColor="{StaticResource PrimaryText}" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center" />
+                    <charts:ChartView x:Name="Chart1View" Chart="{Binding BarChart1}" BackgroundColor="White" />
+                </VerticalStackLayout>
             </Frame>
 
-            <Frame BorderColor="Black" BackgroundColor="White" Padding="0" Margin="0,0,10,10" WidthRequest="300" HeightRequest="200">
-                <charts:ChartView Chart="{Binding BarChart2}" BackgroundColor="White" />
+            <!-- Chart 2 -->
+            <Frame x:Name="Chart2" BorderColor="Black" BackgroundColor="White" Padding="10" Margin="10">
+                <VerticalStackLayout>
+                    <Label Text="{Binding BarChart2Title}" TextColor="{StaticResource PrimaryText}" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center" />
+                    <charts:ChartView x:Name="Chart2View" Chart="{Binding BarChart2}" BackgroundColor="White" />
+                </VerticalStackLayout>
             </Frame>
 
-            <Frame BorderColor="Black" BackgroundColor="White" Padding="0" Margin="0,0,10,10" WidthRequest="300" HeightRequest="200">
-                <charts:ChartView Chart="{Binding BarChart3}" BackgroundColor="White" />
+            <!-- Chart 3 -->
+            <Frame x:Name="Chart3" BorderColor="Black" BackgroundColor="White" Padding="10" Margin="10">
+                <VerticalStackLayout>
+                    <Label Text="{Binding BarChart3Title}" TextColor="{StaticResource PrimaryText}" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center" />
+                    <charts:ChartView x:Name="Chart3View" Chart="{Binding BarChart3}" BackgroundColor="White" />
+                </VerticalStackLayout>
             </Frame>
 
         </FlexLayout>
-
     </VerticalStackLayout>
 </ContentView>

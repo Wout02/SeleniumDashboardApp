@@ -20,6 +20,11 @@ public partial class TestRunDetailViewModel : ObservableObject
     [ObservableProperty] private Chart? barChart2;
     [ObservableProperty] private Chart? barChart3;
 
+    [ObservableProperty] private string barChart1Title;
+    [ObservableProperty] private string barChart2Title;
+    [ObservableProperty] private string barChart3Title;
+
+
     private string _selectedTab = "Details";
     public string SelectedTab
     {
@@ -74,9 +79,12 @@ public partial class TestRunDetailViewModel : ObservableObject
     {
         if (SelectedTestRun?.LogOutput == null) return;
 
+        BarChart1Title = "Overzicht: Passed vs Failed";
+        BarChart2Title = "Duur per test (ms)";
+        BarChart3Title = "Testflow ✔/× per stap";
+
         var lines = SelectedTestRun.LogOutput.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
-        // === BAR CHART 1: PASSED / FAILED TOTAL ===
         int passed = lines.Count(l => l.TrimStart().StartsWith("✔"));
         int failed = lines.Count(l => l.TrimStart().StartsWith("×"));
 
@@ -93,7 +101,6 @@ public partial class TestRunDetailViewModel : ObservableObject
             BackgroundColor = SKColors.White
         };
 
-        // === POINT CHART: TIME PER TEST ===
         var timeEntries = lines
             .Where(l => l.Contains("ms"))
             .Select((line, index) =>
@@ -104,7 +111,7 @@ public partial class TestRunDetailViewModel : ObservableObject
                 int ms = int.Parse(match.Groups[2].Value);
                 return new ChartEntry(ms)
                 {
-                    Label = $"{index + 1}", // alleen cijfer
+                    Label = $"{index + 1}",
                     ValueLabel = $"{ms}ms",
                     Color = SKColors.Orange
                 };
@@ -119,7 +126,6 @@ public partial class TestRunDetailViewModel : ObservableObject
             BackgroundColor = SKColors.White
         };
 
-        // === LINE CHART: TESTFLOW ✔ = 1, × = 0 ===
         var flowEntries = new List<ChartEntry>();
         int step = 1;
 
@@ -129,8 +135,8 @@ public partial class TestRunDetailViewModel : ObservableObject
 
             flowEntries.Add(new ChartEntry(isPassed ? 1 : 0)
             {
-                Label = $"Step {step++}",
-                ValueLabel = "", // leeg label boven de stip
+                Label = $"{step++}",
+                ValueLabel = "",
                 Color = isPassed ? SKColors.Green : SKColors.Red
             });
         }
@@ -149,6 +155,10 @@ public partial class TestRunDetailViewModel : ObservableObject
 
     private async Task LoadChartsFromAllTestRunsAsync()
     {
+        BarChart1Title = "Samenvatting alle runs";
+        BarChart2Title = "Trend geslaagde tests per dag";
+        BarChart3Title = "Trend gefaalde tests per dag";
+
         var testRuns = await _apiService.GetTestRunsAsync();
 
         var grouped = testRuns
@@ -180,7 +190,6 @@ public partial class TestRunDetailViewModel : ObservableObject
         {
             Entries = passedEntries.Concat(failedEntries).ToList(),
             LabelTextSize = 14f,
-            Margin = 10,
             BackgroundColor = SKColors.White
         };
 
