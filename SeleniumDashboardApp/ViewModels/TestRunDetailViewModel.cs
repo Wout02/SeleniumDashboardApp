@@ -5,6 +5,7 @@ using SeleniumDashboardApp.Services;
 using Microcharts;
 using SkiaSharp;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace SeleniumDashboardApp.ViewModels;
 
@@ -12,21 +13,12 @@ public partial class TestRunDetailViewModel : ObservableObject
 {
     private readonly ApiService _apiService;
 
-    [ObservableProperty]
-    private TestRun? selectedTestRun;
+    [ObservableProperty] private TestRun? selectedTestRun;
+    [ObservableProperty] private bool showAggregateData;
 
-    [ObservableProperty]
-    private bool showAggregateData;
-
-    [ObservableProperty]
-    private Chart? barChart1;
-
-    [ObservableProperty]
-    private Chart? barChart2;
-
-    [ObservableProperty]
-    private Chart? barChart3;
-
+    [ObservableProperty] private Chart? barChart1;
+    [ObservableProperty] private Chart? barChart2;
+    [ObservableProperty] private Chart? barChart3;
 
     private string _selectedTab = "Details";
     public string SelectedTab
@@ -57,8 +49,7 @@ public partial class TestRunDetailViewModel : ObservableObject
         {
             if (string.IsNullOrWhiteSpace(testRun.LogOutput))
             {
-                // Tijdelijke dummydata
-                testRun.LogOutput = "[PASSED] LoginTest\n[FAILED] CheckoutTest\n[PASSED] SearchTest\n[PASSED] LogoutTest";
+                testRun.LogOutput = "✔ Passed test\n× Failed test\n✔ Another passed";
                 Debug.WriteLine("[DEBUG] Dummy logoutput toegevoegd");
             }
 
@@ -73,7 +64,6 @@ public partial class TestRunDetailViewModel : ObservableObject
     public async Task LoadChartsAsync()
     {
         Debug.WriteLine($"[CHARTS] LoadChartsAsync - ShowAggregateData: {ShowAggregateData}");
-
         if (ShowAggregateData)
             await LoadChartsFromAllTestRunsAsync();
         else
@@ -82,71 +72,143 @@ public partial class TestRunDetailViewModel : ObservableObject
 
     private async Task LoadChartsFromTestRunAsync()
     {
-        if (SelectedTestRun?.LogOutput == null)
-        {
-            Debug.WriteLine("[CHARTS] Geen LogOutput beschikbaar voor geselecteerde testrun");
-            return;
-        }
-
-        Debug.WriteLine("[CHARTS] LogOutput van geselecteerde run:");
-        Debug.WriteLine(SelectedTestRun.LogOutput);
+        if (SelectedTestRun?.LogOutput == null) return;
 
         var lines = SelectedTestRun.LogOutput.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+
+        // === BAR CHART 1: PASSED / FAILED TOTAL ===
         int passed = lines.Count(l => l.TrimStart().StartsWith("✔"));
         int failed = lines.Count(l => l.TrimStart().StartsWith("×"));
 
-        Debug.WriteLine($"[CHARTS] Passed: {passed}, Failed: {failed}");
+        var passedFailedEntries = new List<ChartEntry>
+    {
+        new(passed) { Label = "Passed", ValueLabel = passed.ToString(), Color = SKColors.Green },
+        new(failed) { Label = "Failed", ValueLabel = failed.ToString(), Color = SKColors.Red }
+    };
 
-        var entries = new List<ChartEntry>
+        BarChart1 = new BarChart
         {
-            new(passed) { Label = "Passed", ValueLabel = passed.ToString(), Color = SKColors.Green },
-            new(failed) { Label = "Failed", ValueLabel = failed.ToString(), Color = SKColors.Red }
+            Entries = passedFailedEntries,
+            LabelTextSize = 14f,
+            BackgroundColor = SKColors.White
         };
 
-        BarChart1 = new BarChart { Entries = entries, LabelTextSize = 14f };
-        BarChart2 = new PointChart { Entries = entries, LabelTextSize = 14f };
-        BarChart3 = new LineChart { Entries = entries, LabelTextSize = 14f };
+        // === POINT CHART: TIME PER TEST ===
+        var timeEntries = lines
+            .Where(l => l.Contains("ms"))
+            .Select((line, index) =>
+            {
+                var match = Regex.Match(line, @"(.+?)\((\d+)ms\)");
+                if (!match.Success) return null;
+
+                int ms = int.Parse(match.Groups[2].Value);
+                return new ChartEntry(ms)
+                {
+                    Label = $"{index + 1}", // alleen cijfer
+                    ValueLabel = $"{ms}ms",
+                    Color = SKColors.Orange
+                };
+            })
+            .Where(e => e != null)
+            .ToList()!;
+
+        BarChart2 = new PointChart
+        {
+            Entries = timeEntries,
+            LabelTextSize = 14f,
+            BackgroundColor = SKColors.White
+        };
+
+        // === LINE CHART: TESTFLOW ✔ = 1, × = 0 ===
+        var flowEntries = new List<ChartEntry>();
+        int step = 1;
+
+        foreach (var line in lines.Where(l => l.TrimStart().StartsWith("✔") || l.TrimStart().StartsWith("×")))
+        {
+            bool isPassed = line.TrimStart().StartsWith("✔");
+
+            flowEntries.Add(new ChartEntry(isPassed ? 1 : 0)
+            {
+                Label = $"Step {step++}",
+                ValueLabel = "", // leeg label boven de stip
+                Color = isPassed ? SKColors.Green : SKColors.Red
+            });
+        }
+
+        BarChart3 = new LineChart
+        {
+            Entries = flowEntries,
+            LabelTextSize = 14f,
+            BackgroundColor = SKColors.White,
+            LineMode = LineMode.Straight,
+            PointMode = PointMode.Circle,
+            MinValue = 0,
+            MaxValue = 1
+        };
     }
 
     private async Task LoadChartsFromAllTestRunsAsync()
     {
         var testRuns = await _apiService.GetTestRunsAsync();
-        int totalPassed = 0, totalFailed = 0;
 
-        foreach (var run in testRuns)
+        var grouped = testRuns
+            .Where(r => !string.IsNullOrWhiteSpace(r.LogOutput))
+            .GroupBy(r => r.Date.Date)
+            .OrderBy(g => g.Key);
+
+        var passedEntries = new List<ChartEntry>();
+        var failedEntries = new List<ChartEntry>();
+
+        foreach (var group in grouped)
         {
-            if (!string.IsNullOrWhiteSpace(run.LogOutput))
-            {
-                var lines = run.LogOutput.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+            int passed = 0, failed = 0;
 
-                foreach (var line in lines)
-                {
-                    var trimmed = line.TrimStart();
-                    if (trimmed.StartsWith("✔"))
-                        totalPassed++;
-                    else if (trimmed.StartsWith("×"))
-                        totalFailed++;
-                }
+            foreach (var run in group)
+            {
+                var lines = run.LogOutput!.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+                passed += lines.Count(l => l.TrimStart().StartsWith("✔"));
+                failed += lines.Count(l => l.TrimStart().StartsWith("×"));
             }
+
+            var label = group.Key.ToString("MM-dd");
+
+            passedEntries.Add(new ChartEntry(passed) { Label = label, ValueLabel = passed.ToString(), Color = SKColors.Green });
+            failedEntries.Add(new ChartEntry(failed) { Label = label, ValueLabel = failed.ToString(), Color = SKColors.Red });
         }
 
-        Debug.WriteLine($"[CHARTS AGGREGATE] Total Passed: {totalPassed}, Total Failed: {totalFailed}");
+        BarChart1 = new BarChart
+        {
+            Entries = passedEntries.Concat(failedEntries).ToList(),
+            LabelTextSize = 14f,
+            Margin = 10,
+            BackgroundColor = SKColors.White
+        };
 
-        var entries = new List<ChartEntry>
-    {
-        new(totalPassed) { Label = "Passed", ValueLabel = totalPassed.ToString(), Color = SKColors.Green },
-        new(totalFailed) { Label = "Failed", ValueLabel = totalFailed.ToString(), Color = SKColors.Red }
-    };
+        BarChart2 = new LineChart
+        {
+            Entries = passedEntries,
+            LabelTextSize = 14f,
+            LineMode = LineMode.Straight,
+            LineSize = 5,
+            PointMode = PointMode.Circle,
+            PointSize = 10,
+            BackgroundColor = SKColors.White
+        };
 
-        BarChart1 = new BarChart { Entries = entries, LabelTextSize = 14f };
-        BarChart2 = new PointChart { Entries = entries, LabelTextSize = 14f };
-        BarChart3 = new LineChart { Entries = entries, LabelTextSize = 14f };
+        BarChart3 = new LineChart
+        {
+            Entries = failedEntries,
+            LabelTextSize = 14f,
+            LineMode = LineMode.Straight,
+            LineSize = 5,
+            PointMode = PointMode.Square,
+            PointSize = 10,
+            BackgroundColor = SKColors.White
+        };
     }
-
 
     partial void OnShowAggregateDataChanged(bool value)
     {
-        // Reageer op toggle switch direct via databinding
         _ = LoadChartsAsync();
     }
 }

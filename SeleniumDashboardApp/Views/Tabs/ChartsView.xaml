@@ -13,15 +13,19 @@
 
         <!-- Grafieken als flexibele layout -->
         <FlexLayout Wrap="Wrap" JustifyContent="SpaceBetween" AlignItems="Start">
-            <Frame BorderColor="Black" Padding="0" Margin="0,0,10,10" WidthRequest="300" HeightRequest="200">
-                <charts:ChartView Chart="{Binding BarChart1}" />
+
+            <Frame BorderColor="Black" BackgroundColor="White" Padding="0" Margin="0,0,10,10" WidthRequest="300" HeightRequest="200">
+                <charts:ChartView Chart="{Binding BarChart1}" BackgroundColor="White" />
             </Frame>
-            <Frame BorderColor="Black" Padding="0" Margin="0,0,10,10" WidthRequest="300" HeightRequest="200">
-                <charts:ChartView Chart="{Binding BarChart2}" />
+
+            <Frame BorderColor="Black" BackgroundColor="White" Padding="0" Margin="0,0,10,10" WidthRequest="300" HeightRequest="200">
+                <charts:ChartView Chart="{Binding BarChart2}" BackgroundColor="White" />
             </Frame>
-            <Frame BorderColor="Black" Padding="0" Margin="0,0,10,10" WidthRequest="300" HeightRequest="200">
-                <charts:ChartView Chart="{Binding BarChart3}" />
+
+            <Frame BorderColor="Black" BackgroundColor="White" Padding="0" Margin="0,0,10,10" WidthRequest="300" HeightRequest="200">
+                <charts:ChartView Chart="{Binding BarChart3}" BackgroundColor="White" />
             </Frame>
+
         </FlexLayout>
 
     </VerticalStackLayout>
