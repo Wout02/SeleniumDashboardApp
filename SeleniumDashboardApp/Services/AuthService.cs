@@ -19,15 +19,56 @@ namespace SeleniumDashboardApp.Services
             System.Diagnostics.Debug.WriteLine("=== AUTH SERVICE: LoginAsync gestart ===");
 
 #if WINDOWS
-            System.Diagnostics.Debug.WriteLine("Windows platform - fake token wordt gebruikt");
-            return "fake-token";
-#else
+            System.Diagnostics.Debug.WriteLine("=== WINDOWS: Using system browser workaround ===");
             try
             {
-                System.Diagnostics.Debug.WriteLine("Genereren van PKCE parameters...");
                 var codeVerifier = GenerateCodeVerifier();
                 var codeChallenge = GenerateCodeChallenge(codeVerifier);
                 
+                var authUrl = $"https://{_domain}/authorize" +
+                              $"?client_id={Uri.EscapeDataString(_clientId)}" +
+                              $"&response_type=code" +
+                              $"&scope={Uri.EscapeDataString("openid profile email")}" +
+                              $"&redirect_uri={Uri.EscapeDataString(_callbackUrl)}" +
+                              $"&code_challenge={Uri.EscapeDataString(codeChallenge)}" +
+                              $"&code_challenge_method=S256" +
+                              $"&prompt=login";
+
+                System.Diagnostics.Debug.WriteLine($"Opening system browser with Auth URL");
+                
+                // Open system browser instead of WebView (Windows WebAuthenticator workaround)
+                var success = await Launcher.Default.OpenAsync(new Uri(authUrl));
+                
+                if (!success)
+                {
+                    System.Diagnostics.Debug.WriteLine("Failed to launch system browser");
+                    return null;
+                }
+
+                System.Diagnostics.Debug.WriteLine("System browser opened successfully");
+                System.Diagnostics.Debug.WriteLine("=== WINDOWS AUTH FLOW ===");
+                System.Diagnostics.Debug.WriteLine("1. User logs in via browser");
+                System.Diagnostics.Debug.WriteLine("2. Browser redirects to API callback");
+                System.Diagnostics.Debug.WriteLine("3. For development: using placeholder token");
+                System.Diagnostics.Debug.WriteLine("4. TODO: Implement callback server for production");
+                
+                // In development: placeholder token that works with your API
+                return "dev-windows-auth-token-" + DateTime.Now.Ticks;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Windows browser auth error: {ex.Message}");
+                return null;
+            }
+#else
+
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"Platform: {DeviceInfo.Platform}");
+                System.Diagnostics.Debug.WriteLine("Genereren van PKCE parameters...");
+                var codeVerifier = GenerateCodeVerifier();
+                var codeChallenge = GenerateCodeChallenge(codeVerifier);
+
                 System.Diagnostics.Debug.WriteLine($"Code verifier: {codeVerifier.Substring(0, 10)}...");
                 System.Diagnostics.Debug.WriteLine($"Code challenge: {codeChallenge.Substring(0, 10)}...");
 
@@ -43,17 +84,33 @@ namespace SeleniumDashboardApp.Services
                 System.Diagnostics.Debug.WriteLine($"Auth URL: {authUrl}");
                 System.Diagnostics.Debug.WriteLine("Starten van WebAuthenticator...");
 
+                // Platform-specific callback URL setup
+                var callbackScheme = "mauiapp://callback";
+
+#if WINDOWS
+                System.Diagnostics.Debug.WriteLine("=== WINDOWS AUTH0 SETUP ===");
+                // Windows needs specific WebAuthenticator configuration
                 var authRequest = new WebAuthenticatorOptions
                 {
                     Url = new Uri(authUrl),
-                    CallbackUrl = new Uri("mauiapp://callback"), // App verwacht custom scheme terug
-                    PrefersEphemeralWebBrowserSession = true
+                    CallbackUrl = new Uri(callbackScheme),
+                    PrefersEphemeralWebBrowserSession = false // Windows works better with false
                 };
+#else
+                System.Diagnostics.Debug.WriteLine("=== ANDROID AUTH0 SETUP ===");
+                var authRequest = new WebAuthenticatorOptions
+                {
+                    Url = new Uri(authUrl),
+                    CallbackUrl = new Uri(callbackScheme),
+                    PrefersEphemeralWebBrowserSession = true // Android works better with true
+                };
+#endif
 
                 System.Diagnostics.Debug.WriteLine($"=== WEBAUTH REQUEST DETAILS ===");
                 System.Diagnostics.Debug.WriteLine($"Auth URL: {authRequest.Url}");
                 System.Diagnostics.Debug.WriteLine($"Callback URL: {authRequest.CallbackUrl}");
                 System.Diagnostics.Debug.WriteLine($"Ephemeral Session: {authRequest.PrefersEphemeralWebBrowserSession}");
+                System.Diagnostics.Debug.WriteLine($"Platform: {DeviceInfo.Platform}");
 
                 var result = await WebAuthenticator.Default.AuthenticateAsync(authRequest);
 
@@ -82,7 +139,7 @@ namespace SeleniumDashboardApp.Services
                     return null;
                 }
 
-                if (!result.Properties.TryGetValue("code", out var authorizationCode) || 
+                if (!result.Properties.TryGetValue("code", out var authorizationCode) ||
                     string.IsNullOrEmpty(authorizationCode))
                 {
                     System.Diagnostics.Debug.WriteLine("FOUT: Geen authorization code ontvangen");
@@ -94,7 +151,7 @@ namespace SeleniumDashboardApp.Services
                 // Token ophalen
                 System.Diagnostics.Debug.WriteLine("Starten van token exchange...");
                 var token = await ExchangeCodeForTokenAsync(authorizationCode, codeVerifier);
-                
+
                 if (!string.IsNullOrEmpty(token))
                 {
                     System.Diagnostics.Debug.WriteLine("=== TOKEN SUCCESVOL ONTVANGEN ===");
