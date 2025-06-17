@@ -12,13 +12,13 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
-// Database configuratie - PostgreSQL voor production, SQL Server voor development
+// Database configuratie - ALTIJD PostgreSQL
 var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 
 if (!string.IsNullOrEmpty(databaseUrl))
 {
     // Production: PostgreSQL op Railway
-    Console.WriteLine("Using PostgreSQL database");
+    Console.WriteLine("Using PostgreSQL database (Production)");
 
     // Parse Railway DATABASE_URL format: postgres://user:pass@host:port/db
     var databaseUri = new Uri(databaseUrl);
@@ -42,11 +42,11 @@ if (!string.IsNullOrEmpty(databaseUrl))
 }
 else
 {
-    // Development: SQL Server lokaal
-    Console.WriteLine("Using SQL Server database");
-    var connectionString = "Server=localhost\\SQLEXPRESS;Database=SeleniumDashboard;Trusted_Connection=True;TrustServerCertificate=True;";
+    // Development: Ook PostgreSQL (tijdelijk voor migrations)
+    Console.WriteLine("Using PostgreSQL database (Development)");
+    var connectionString = "Host=localhost;Database=seleniumdashboard_dev;Username=postgres;Password=password;";
     builder.Services.AddDbContext<TestRunDbContext>(options =>
-        options.UseSqlServer(connectionString));
+        options.UseNpgsql(connectionString));
 }
 
 // CORS configuratie
