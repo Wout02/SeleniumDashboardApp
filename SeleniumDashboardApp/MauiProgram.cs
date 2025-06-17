@@ -31,9 +31,11 @@ public static class MauiProgram
         builder.Services.AddSingleton(new LocalDatabaseService(dbPath));
         builder.Services.AddHttpClient<ApiService>(client =>
         {
-            client.BaseAddress = new Uri("https://a4c2-84-83-178-6.ngrok-free.app/");
+            client.BaseAddress = new Uri("https://0d2d-84-83-178-6.ngrok-free.app/");
         });
         builder.Services.AddSingleton<AuthService>();
+        builder.Services.AddSingleton<ISignalRService, SignalRService>();
+        builder.Services.AddSingleton<ILocalNotificationService, SimpleRealNotificationService>();
 
         // ViewModels
         builder.Services.AddSingleton<DashboardViewModel>();

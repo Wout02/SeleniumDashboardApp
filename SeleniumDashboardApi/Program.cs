@@ -1,5 +1,7 @@
 using SeleniumDashboardApi.Data;
 using Microsoft.EntityFrameworkCore;
+using SeleniumDashboardApi.Hubs;
+using SeleniumDashboardApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer(); // Voor Swagger
 builder.Services.AddSwaggerGen();           // Voor Swagger UI
+builder.Services.AddSignalR();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddDbContext<TestRunDbContext>(options =>
     options.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=SeleniumDashboard;Trusted_Connection=True;TrustServerCertificate=True;"));
@@ -25,5 +29,7 @@ if (app.Environment.IsDevelopment())
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<TestRunHub>("/testrunhub");
 
 app.Run();
