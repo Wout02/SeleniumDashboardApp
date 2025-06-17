@@ -12,7 +12,7 @@ namespace SeleniumDashboardApp.Services
     {
         private readonly string _domain = "dev-14kcc8n2c231d8b8.eu.auth0.com";
         private readonly string _clientId = "OG71NTgV1UMVeKjytuKivGyTmmkkOlOw";
-        private readonly string _callbackUrl = "https://0d2d-84-83-178-6.ngrok-free.app/auth/callback"; // HTTPS callback naar API
+        private readonly string _callbackUrl = "https://seleniumdashboardapp-production.up.railway.app/auth/callback"; // HTTPS callback naar API
 
         public async Task<string?> LoginAsync()
         {

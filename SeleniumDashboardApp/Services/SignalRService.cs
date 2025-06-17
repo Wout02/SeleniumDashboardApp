@@ -16,7 +16,7 @@ namespace SeleniumDashboardApp.Services
     public class SignalRService : ISignalRService, IDisposable
     {
         private HubConnection? _connection;
-        private readonly string _hubUrl = "https://0d2d-84-83-178-6.ngrok-free.app/testrunhub";
+        private readonly string _hubUrl = "https://seleniumdashboardapp-production.up.railway.app/testrunhub";
 
         public bool IsConnected => _connection?.State == HubConnectionState.Connected;
 
