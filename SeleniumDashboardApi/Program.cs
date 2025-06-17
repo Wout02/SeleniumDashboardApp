@@ -19,8 +19,26 @@ if (!string.IsNullOrEmpty(databaseUrl))
 {
     // Production: PostgreSQL op Railway
     Console.WriteLine("Using PostgreSQL database");
+
+    // Parse Railway DATABASE_URL format: postgres://user:pass@host:port/db
+    var databaseUri = new Uri(databaseUrl);
+    var userInfo = databaseUri.UserInfo.Split(':');
+
+    var connectionString = new Npgsql.NpgsqlConnectionStringBuilder
+    {
+        Host = databaseUri.Host,
+        Port = databaseUri.Port,
+        Username = userInfo[0],
+        Password = userInfo[1],
+        Database = databaseUri.LocalPath.TrimStart('/'),
+        SslMode = Npgsql.SslMode.Require,
+        TrustServerCertificate = true
+    }.ToString();
+
+    Console.WriteLine($"PostgreSQL connection string: {connectionString}");
+
     builder.Services.AddDbContext<TestRunDbContext>(options =>
-        options.UseNpgsql(databaseUrl));
+        options.UseNpgsql(connectionString));
 }
 else
 {
