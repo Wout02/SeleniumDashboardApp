@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="SeleniumDashboardApp.Views.LogoutWebViewPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Title="Logging out..."
+             BackgroundColor="{DynamicResource PageBackgroundColor}">
+
+    <Grid>
+        <!-- Loading Stack -->
+        <StackLayout x:Name="LoadingStack" 
+                     IsVisible="True"
+                     VerticalOptions="Center" 
+                     HorizontalOptions="Center"
+                     Spacing="20">
+
+            <ActivityIndicator IsRunning="True" 
+                             Color="{DynamicResource Primary}"
+                             HeightRequest="50"
+                             WidthRequest="50" />
+
+            <Label Text="Logging out..." 
+                   FontSize="16"
+                   HorizontalOptions="Center"
+                   TextColor="{DynamicResource OnSurfaceColor}" />
+
+            <Label Text="Please wait while we sign you out securely"
+                   FontSize="12"
+                   HorizontalOptions="Center"
+                   TextColor="{DynamicResource OnSurfaceColor}"
+                   Opacity="0.7" />
+        </StackLayout>
+
+        <!-- WebView (initially hidden) -->
+        <WebView x:Name="LogoutWebView"
+                 IsVisible="False"
+                 VerticalOptions="FillAndExpand"
+                 HorizontalOptions="FillAndExpand"
+                 Navigated="OnWebViewNavigated" />
+
+    </Grid>
+</ContentPage>

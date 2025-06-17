@@ -16,7 +16,20 @@
                TextColor="{StaticResource HeaderTextColor}"
                Grid.Column="0" />
 
-        <Button Text="Uitloggen"
+        <!-- Add loading indicator (initially hidden) -->
+        <ActivityIndicator x:Name="LoadingIndicator"
+                          IsVisible="False"
+                          IsRunning="True"
+                          Color="{StaticResource HeaderTextColor}"
+                          HeightRequest="20"
+                          WidthRequest="20"
+                          VerticalOptions="Center"
+                          HorizontalOptions="End"
+                          Margin="0,0,10,0"
+                          Grid.Column="1" />
+
+        <Button x:Name="LogoutButton"
+                Text="Uitloggen"
                 FontSize="14"
                 Padding="8,4"
                 BackgroundColor="Transparent"

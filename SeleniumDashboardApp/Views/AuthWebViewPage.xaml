@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SeleniumDashboardApp.Views.AuthWebViewPage"
+             Title="Inloggen"
+             Shell.NavBarIsVisible="False">
+
+    <Grid>
+        <!-- Loading indicator -->
+        <VerticalStackLayout x:Name="LoadingStack" 
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center"
+                            Spacing="20"
+                            IsVisible="True">
+            <ActivityIndicator IsRunning="True" 
+                              Color="Blue" />
+            <Label Text="🔐 Auth0 inloggen"
+                   FontSize="18"
+                   HorizontalOptions="Center" />
+            <Label Text="Browser wordt geladen..."
+                   FontSize="14"
+                   TextColor="Gray"
+                   HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+        <!-- WebView for authentication -->
+        <WebView x:Name="AuthWebView" 
+                 IsVisible="False"
+                 Navigated="OnWebViewNavigated"
+                 Navigating="OnWebViewNavigating" />
+
+        <!-- Cancel button -->
+        <Button Text="❌ Annuleren" 
+                Clicked="OnCancelClicked"
+                BackgroundColor="LightGray"
+                TextColor="Black"
+                VerticalOptions="Start"
+                HorizontalOptions="End"
+                Margin="10"
+                WidthRequest="100"
+                HeightRequest="40" />
+    </Grid>
+</ContentPage>
