@@ -244,22 +244,57 @@ public partial class MainPage : ContentPage
             var confirm = await DisplayAlert("Verwijderen", "Weet je zeker dat je deze testrun wilt verwijderen?", "Ja", "Annuleren");
             if (!confirm) return;
 
-            var backendSuccess = await _apiService.DeleteTestRunAsync(id);
-
-            if (backendSuccess)
+            try
             {
+                System.Diagnostics.Debug.WriteLine($"=== DELETING TEST RUN {id} ===");
+
+                // First, remove from local database to give immediate UI feedback
                 await _database.DeleteTestRunByIdAsync(id);
 
+                // Update UI immediately
                 if (BindingContext is DashboardViewModel viewModel)
                 {
-                    await viewModel.RefreshTestRuns();
+                    // Remove from local collection first for immediate feedback
+                    var testRunToRemove = viewModel.TestRuns.FirstOrDefault(t => t.Id == id);
+                    if (testRunToRemove != null)
+                    {
+                        viewModel.TestRuns.Remove(testRunToRemove);
+                        System.Diagnostics.Debug.WriteLine($"Removed test run {id} from UI collection");
+                    }
                 }
 
-                await DisplayAlert("Verwijderd", "Testrun is verwijderd uit backend en database.", "OK");
+                // Then call backend (SignalR will handle notifying other clients)
+                var backendSuccess = await _apiService.DeleteTestRunAsync(id);
+
+                if (backendSuccess)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Test run {id} successfully deleted from backend");
+                    await DisplayAlert("Verwijderd", "Testrun is verwijderd.", "OK");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"Failed to delete test run {id} from backend");
+
+                    // If backend delete failed, refresh to restore correct state
+                    if (BindingContext is DashboardViewModel vm)
+                    {
+                        await vm.RefreshTestRuns();
+                    }
+
+                    await DisplayAlert("Fout", "Kan testrun niet verwijderen uit backend. UI is hersteld.", "OK");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                await DisplayAlert("Fout", "Kan testrun niet verwijderen uit backend.", "OK");
+                System.Diagnostics.Debug.WriteLine($"Error deleting test run {id}: {ex.Message}");
+
+                // On error, refresh to restore correct state
+                if (BindingContext is DashboardViewModel vm)
+                {
+                    await vm.RefreshTestRuns();
+                }
+
+                await DisplayAlert("Fout", $"Er is een fout opgetreden: {ex.Message}", "OK");
             }
         }
     }
