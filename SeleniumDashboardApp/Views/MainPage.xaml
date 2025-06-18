@@ -20,7 +20,7 @@
         <!-- 🔝 Topbar met titel en login/logout knop -->
         <shared:TopBarView Grid.Row="0" />
 
-        <!-- Iconen onder topbar - FIXED: Grid voor betere positioning -->
+        <!-- Iconen onder topbar -->
         <Grid Grid.Row="1" Padding="20,15,20,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
@@ -29,84 +29,23 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <!-- Zoek knop met hover effect -->
-            <Button Text="🔍"
-                    Grid.Column="0"
-                    Clicked="OnToggleSearchClicked"
-                    BackgroundColor="Transparent"
-                    TextColor="White"
-                    WidthRequest="36"
-                    HeightRequest="36"
-                    FontSize="16"
-                    Margin="0,0,15,0">
-                <VisualStateManager.VisualStateGroups>
-                    <VisualStateGroup x:Name="CommonStates">
-                        <VisualState x:Name="PointerOver">
-                            <VisualState.Setters>
-                                <Setter Property="BackgroundColor" Value="#4A6274" />
-                                <Setter Property="Scale" Value="1.1" />
-                            </VisualState.Setters>
-                        </VisualState>
-                        <VisualState x:Name="Normal">
-                            <VisualState.Setters>
-                                <Setter Property="BackgroundColor" Value="Transparent" />
-                                <Setter Property="Scale" Value="1.0" />
-                            </VisualState.Setters>
-                        </VisualState>
-                        <VisualState x:Name="Pressed">
-                            <VisualState.Setters>
-                                <Setter Property="BackgroundColor" Value="#5D7285" />
-                                <Setter Property="Scale" Value="0.95" />
-                            </VisualState.Setters>
-                        </VisualState>
-                    </VisualStateGroup>
-                </VisualStateManager.VisualStateGroups>
-            </Button>
+            <!-- Zoek knop als Frame -->
+            <Frame Grid.Column="0"
+                   BackgroundColor="Transparent"
+                   WidthRequest="44"
+                   HeightRequest="44"
+                   CornerRadius="22"
+                   HasShadow="False"
+                   Padding="0"
+                   Margin="0,0,15,0"
+                   BorderColor="Transparent">
 
-            <!-- Filter knop met hover effect -->
-            <Button Text="⚙️"
-                    Grid.Column="1"
-                    Clicked="OnToggleFilterClicked"
-                    BackgroundColor="Transparent"
-                    TextColor="White"
-                    WidthRequest="36"
-                    HeightRequest="36"
-                    FontSize="16">
-                <VisualStateManager.VisualStateGroups>
-                    <VisualStateGroup x:Name="CommonStates">
-                        <VisualState x:Name="PointerOver">
-                            <VisualState.Setters>
-                                <Setter Property="BackgroundColor" Value="#4A6274" />
-                                <Setter Property="Scale" Value="1.1" />
-                            </VisualState.Setters>
-                        </VisualState>
-                        <VisualState x:Name="Normal">
-                            <VisualState.Setters>
-                                <Setter Property="BackgroundColor" Value="Transparent" />
-                                <Setter Property="Scale" Value="1.0" />
-                            </VisualState.Setters>
-                        </VisualState>
-                        <VisualState x:Name="Pressed">
-                            <VisualState.Setters>
-                                <Setter Property="BackgroundColor" Value="#5D7285" />
-                                <Setter Property="Scale" Value="0.95" />
-                            </VisualState.Setters>
-                        </VisualState>
-                    </VisualStateGroup>
-                </VisualStateManager.VisualStateGroups>
-            </Button>
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnToggleSearchClicked" />
+                </Frame.GestureRecognizers>
 
-            <!-- Refresh knop helemaal rechts met hover effect -->
-            <Button Text="🔄"
-                    Grid.Column="3"
-                    Command="{Binding RefreshTestRunsCommand}"
-                    BackgroundColor="Transparent"
-                    TextColor="White"
-                    WidthRequest="36"
-                    HeightRequest="36"
-                    FontSize="16">
                 <VisualStateManager.VisualStateGroups>
-                    <VisualStateGroup x:Name="CommonStates">
+                    <VisualStateGroup x:Name="SearchButtonStates">
                         <VisualState x:Name="PointerOver">
                             <VisualState.Setters>
                                 <Setter Property="BackgroundColor" Value="#4A6274" />
@@ -127,7 +66,101 @@
                         </VisualState>
                     </VisualStateGroup>
                 </VisualStateManager.VisualStateGroups>
-            </Button>
+
+                <Label Text="🔍" 
+                       TextColor="White" 
+                       FontSize="18"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+            </Frame>
+
+            <!-- Filter knop als Frame -->
+            <Frame Grid.Column="1"
+                   BackgroundColor="Transparent"
+                   WidthRequest="44"
+                   HeightRequest="44"
+                   CornerRadius="22"
+                   HasShadow="False"
+                   Padding="0"
+                   BorderColor="Transparent">
+
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnToggleFilterClicked" />
+                </Frame.GestureRecognizers>
+
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup x:Name="FilterButtonStates">
+                        <VisualState x:Name="PointerOver">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="#4A6274" />
+                                <Setter Property="Scale" Value="1.1" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="Transparent" />
+                                <Setter Property="Scale" Value="1.0" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Pressed">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="#5D7285" />
+                                <Setter Property="Scale" Value="0.95" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateManager.VisualStateGroups>
+
+                <Label Text="≔" 
+                       TextColor="Black" 
+                       FontSize="26"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+            </Frame>
+
+            <!-- Refresh knop als Frame -->
+            <Frame Grid.Column="3"
+                   BackgroundColor="Transparent"
+                   WidthRequest="44"
+                   HeightRequest="44"
+                   CornerRadius="22"
+                   HasShadow="False"
+                   Padding="0"
+                   BorderColor="Transparent">
+
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRefreshClicked" />
+                </Frame.GestureRecognizers>
+
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup x:Name="RefreshButtonStates">
+                        <VisualState x:Name="PointerOver">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="#4A6274" />
+                                <Setter Property="Scale" Value="1.1" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="Transparent" />
+                                <Setter Property="Scale" Value="1.0" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Pressed">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="#5D7285" />
+                                <Setter Property="Scale" Value="0.95" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateManager.VisualStateGroups>
+
+                <Label Text="⟳" 
+                       TextColor="Black" 
+                       FontSize="26"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+            </Frame>
         </Grid>
 
         <!-- Inhoud -->
@@ -195,8 +228,7 @@
                 <!-- Testrun resultaten -->
                 <CollectionView x:Name="TestRunsCollectionView"
                                 ItemsSource="{Binding TestRuns}"
-                                SelectionMode="Single"
-                                SelectionChanged="OnTestRunTapped">
+                                SelectionMode="None">
 
                     <CollectionView.ItemsLayout>
                         <LinearItemsLayout Orientation="Vertical" ItemSpacing="5" />
@@ -204,22 +236,31 @@
 
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Border
-                                Stroke="#E0E0E0"
-                                BackgroundColor="White"
-                                StrokeShape="RoundRectangle 8"
-                                Margin="0"
-                                Padding="15">
+                            <Frame BackgroundColor="White"
+                                   CornerRadius="8"
+                                   HasShadow="False"
+                                   BorderColor="#E0E0E0"
+                                   Margin="0"
+                                   Padding="15">
+
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnTestRunTapped" />
+                                </Frame.GestureRecognizers>
 
                                 <VisualStateManager.VisualStateGroups>
-                                    <VisualStateGroup x:Name="CommonStates">
+                                    <VisualStateGroup x:Name="BorderStates">
                                         <VisualState x:Name="PointerOver">
                                             <VisualState.Setters>
                                                 <Setter Property="BackgroundColor" Value="#F8F9FA" />
-                                                <Setter Property="Stroke" Value="#007ACC" />
+                                                <Setter Property="BorderColor" Value="#007ACC" />
                                             </VisualState.Setters>
                                         </VisualState>
-                                        <VisualState x:Name="Normal" />
+                                        <VisualState x:Name="Normal">
+                                            <VisualState.Setters>
+                                                <Setter Property="BackgroundColor" Value="White" />
+                                                <Setter Property="BorderColor" Value="#E0E0E0" />
+                                            </VisualState.Setters>
+                                        </VisualState>
                                     </VisualStateGroup>
                                 </VisualStateManager.VisualStateGroups>
 
@@ -255,45 +296,61 @@
                                                TextColor="DimGray" />
                                     </VerticalStackLayout>
 
-                                    <!-- Verwijderknop (🗑️) rechtsboven met hover effect -->
-                                    <Button Text="🗑️"
-                                            WidthRequest="32"
-                                            HeightRequest="32"
-                                            FontSize="16"
-                                            BackgroundColor="Transparent"
-                                            Clicked="OnDeleteTestRun"
-                                            CommandParameter="{Binding Id}"
-                                            Grid.Column="1"
-                                            HorizontalOptions="End"
-                                            VerticalOptions="Start">
+                                    <!-- Delete knop als Frame -->
+                                    <Frame Grid.Column="1"
+                                           BackgroundColor="Transparent"
+                                           WidthRequest="40"
+                                           HeightRequest="40"
+                                           CornerRadius="20"
+                                           HasShadow="False"
+                                           Padding="0"
+                                           BorderColor="Transparent"
+                                           HorizontalOptions="End"
+                                           VerticalOptions="Start">
+
+                                        <Frame.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="OnDeleteTestRun" />
+                                        </Frame.GestureRecognizers>
+
                                         <VisualStateManager.VisualStateGroups>
-                                            <VisualStateGroup x:Name="CommonStates">
+                                            <VisualStateGroup x:Name="DeleteButtonStates">
                                                 <VisualState x:Name="PointerOver">
                                                     <VisualState.Setters>
                                                         <Setter Property="BackgroundColor" Value="#FFE6E6" />
                                                         <Setter Property="Scale" Value="1.1" />
-                                                        <Setter Property="TextColor" Value="#DC3545" />
                                                     </VisualState.Setters>
                                                 </VisualState>
                                                 <VisualState x:Name="Normal">
                                                     <VisualState.Setters>
                                                         <Setter Property="BackgroundColor" Value="Transparent" />
                                                         <Setter Property="Scale" Value="1.0" />
-                                                        <Setter Property="TextColor" Value="Black" />
                                                     </VisualState.Setters>
                                                 </VisualState>
                                                 <VisualState x:Name="Pressed">
                                                     <VisualState.Setters>
                                                         <Setter Property="BackgroundColor" Value="#FFCCCC" />
                                                         <Setter Property="Scale" Value="0.95" />
-                                                        <Setter Property="TextColor" Value="#DC3545" />
                                                     </VisualState.Setters>
                                                 </VisualState>
                                             </VisualStateGroup>
                                         </VisualStateManager.VisualStateGroups>
-                                    </Button>
+
+                                        <Label Text="🗑️" 
+                                               TextColor="Black" 
+                                               FontSize="18"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" 
+                                                           Binding="{Binding Source={RelativeSource AncestorType={x:Type Frame}}, Path=BackgroundColor}" 
+                                                           Value="#FFE6E6">
+                                                    <Setter Property="TextColor" Value="#DC3545" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Frame>
                                 </Grid>
-                            </Border>
+                            </Frame>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>

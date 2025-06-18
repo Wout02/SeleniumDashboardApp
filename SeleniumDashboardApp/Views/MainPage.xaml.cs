@@ -29,11 +29,11 @@ public partial class MainPage : ContentPage
         BackgroundColor = Colors.White;
         Title = "Selenium Dashboard";
 
-/*        viewModel.PropertyChanged += (s, e) =>
-        {
-            if (e.PropertyName == nameof(viewModel.SelectedStatus))
-                UpdateStatusDisplay(viewModel.SelectedStatus);
-        };*/
+        /*        viewModel.PropertyChanged += (s, e) =>
+                {
+                    if (e.PropertyName == nameof(viewModel.SelectedStatus))
+                        UpdateStatusDisplay(viewModel.SelectedStatus);
+                };*/
 
         // Subscribe to SignalR notifications
         SetupSignalRNotifications();
@@ -204,11 +204,11 @@ public partial class MainPage : ContentPage
         }
     }
 
-/*    private void UpdateStatusDisplay(string status)
-    {
-        StatusDisplay.Text = string.IsNullOrWhiteSpace(status) ? string.Empty : $"Status: {status}";
-        StatusDisplay.IsVisible = !string.IsNullOrWhiteSpace(status);
-    }*/
+    /*    private void UpdateStatusDisplay(string status)
+        {
+            StatusDisplay.Text = string.IsNullOrWhiteSpace(status) ? string.Empty : $"Status: {status}";
+            StatusDisplay.IsVisible = !string.IsNullOrWhiteSpace(status);
+        }*/
 
     private void OnToggleSearchClicked(object sender, EventArgs e)
     {
@@ -220,11 +220,20 @@ public partial class MainPage : ContentPage
         StatusPickerFrame.IsVisible = !StatusPickerFrame.IsVisible;
     }
 
-    private async void OnTestRunTapped(object sender, SelectionChangedEventArgs e)
+    // NIEUWE METHOD: Refresh button handler
+    private async void OnRefreshClicked(object sender, EventArgs e)
+    {
+        if (_viewModel != null)
+        {
+            await _viewModel.RefreshTestRuns();
+        }
+    }
+
+    private async void OnTestRunTapped(object sender, EventArgs e)
     {
         Console.WriteLine("TestRun geklikt");
 
-        if (e.CurrentSelection.FirstOrDefault() is TestRun selectedRun)
+        if (sender is Frame frame && frame.BindingContext is TestRun selectedRun)
         {
             Console.WriteLine($"Geselecteerde run: {selectedRun.Id}");
 
@@ -233,14 +242,15 @@ public partial class MainPage : ContentPage
             var page = new TestRunDetailPage(viewModel, selectedRun.Id);
             await Navigation.PushAsync(page, animated: true);
         }
-
-        TestRunsCollectionView.SelectedItem = null;
     }
 
+    // AANGEPASTE METHOD: Delete handler voor TapGestureRecognizer
     private async void OnDeleteTestRun(object sender, EventArgs e)
     {
-        if (sender is Button button && button.CommandParameter is int id)
+        // Nu moeten we het ID anders ophalen omdat we geen CommandParameter meer hebben
+        if (sender is Frame frame && frame.BindingContext is TestRun testRun)
         {
+            var id = testRun.Id;
             var confirm = await DisplayAlert("Verwijderen", "Weet je zeker dat je deze testrun wilt verwijderen?", "Ja", "Annuleren");
             if (!confirm) return;
 

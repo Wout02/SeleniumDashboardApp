@@ -11,6 +11,7 @@ public partial class DashboardViewModel : ObservableObject
 {
     private readonly ApiService _apiService;
     private readonly LocalDatabaseService _database;
+    private bool _isLoading = false; // Prevent concurrent loads
 
     [ObservableProperty]
     private ObservableCollection<TestRun> testRuns = new();
@@ -28,12 +29,16 @@ public partial class DashboardViewModel : ObservableObject
     {
         _apiService = apiService;
         _database = database;
-        _ = LoadAndSyncRunsAsync();
+
+        // Don't auto-load in constructor - let the view handle initial load
+        // This prevents race conditions with OnAppearing
     }
 
     [RelayCommand]
     public async Task RefreshTestRuns()
     {
+        if (_isLoading) return; // Prevent concurrent refresh calls
+
         await LoadAndSyncRunsAsync();
     }
 
@@ -69,13 +74,23 @@ public partial class DashboardViewModel : ObservableObject
 
     private async Task LoadAndSyncRunsAsync()
     {
+        if (_isLoading)
+        {
+            System.Diagnostics.Debug.WriteLine("[SKIP] LoadAndSyncRunsAsync already running");
+            return;
+        }
+
+        _isLoading = true;
         try
         {
+            System.Diagnostics.Debug.WriteLine("[START] LoadAndSyncRunsAsync");
+
             var runs = await _apiService.GetTestRunsAsync();
 
             if (runs != null && runs.Count > 0)
             {
                 await _database.DeleteAllAsync();
+                System.Diagnostics.Debug.WriteLine("[CLEARED] Local database");
 
                 foreach (var run in runs)
                 {
@@ -95,6 +110,7 @@ public partial class DashboardViewModel : ObservableObject
                         };
 
                         await _database.SaveTestRunAsync(local);
+                        System.Diagnostics.Debug.WriteLine($"[SAVED] TestRun {run.Id} to local DB");
                     }
                     else
                     {
@@ -102,39 +118,113 @@ public partial class DashboardViewModel : ObservableObject
                     }
                 }
             }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("[EMPTY] No test runs from API");
+            }
+
+            await ApplyLocalFiltersAsync();
+            System.Diagnostics.Debug.WriteLine("[COMPLETED] LoadAndSyncRunsAsync");
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[API Fout] {ex.Message}");
+
+            // On API error, still try to show local data
+            await ApplyLocalFiltersAsync();
         }
-
-        await ApplyLocalFiltersAsync();
+        finally
+        {
+            _isLoading = false;
+        }
     }
-
 
     private async Task ApplyLocalFiltersAsync()
     {
-        var allRuns = await _database.GetTestRunsAsync();
-
-        var filtered = allRuns.Where(run =>
-            (IsStatusPassedSelected && run.Status == "Passed") ||
-            (IsStatusFailedSelected && run.Status == "Failed") ||
-            (!IsStatusPassedSelected && !IsStatusFailedSelected)
-        ).ToList();
-
-        if (!string.IsNullOrWhiteSpace(SearchProject))
-            filtered = filtered.Where(r => r.ProjectName.Contains(SearchProject, StringComparison.OrdinalIgnoreCase)).ToList();
-
-        var converted = filtered.Select(run => new TestRun
+        try
         {
-            Id = run.BackendId,
-            ProjectName = run.ProjectName,
-            Status = run.Status,
-            Date = run.Date,
-            Summary = run.Summary,
-            LogOutput = run.LogOutput
-        }).ToList();
+            System.Diagnostics.Debug.WriteLine("[START] ApplyLocalFiltersAsync");
 
-        TestRuns = new ObservableCollection<TestRun>(converted);
+            var allRuns = await _database.GetTestRunsAsync();
+            System.Diagnostics.Debug.WriteLine($"[LOCAL DB] Found {allRuns.Count} test runs");
+
+            var filtered = allRuns.Where(run =>
+                (IsStatusPassedSelected && run.Status == "Passed") ||
+                (IsStatusFailedSelected && run.Status == "Failed") ||
+                (!IsStatusPassedSelected && !IsStatusFailedSelected)
+            ).ToList();
+
+            if (!string.IsNullOrWhiteSpace(SearchProject))
+                filtered = filtered.Where(r => r.ProjectName.Contains(SearchProject, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            var converted = filtered.Select(run => new TestRun
+            {
+                Id = run.BackendId,
+                ProjectName = run.ProjectName,
+                Status = run.Status,
+                Date = run.Date,
+                Summary = run.Summary,
+                LogOutput = run.LogOutput
+            }).ToList();
+
+            // Ensure no duplicates by ID (extra safety)
+            var deduped = converted
+                .GroupBy(x => x.Id)
+                .Select(g => g.First())
+                .OrderByDescending(x => x.Date)
+                .ToList();
+
+            System.Diagnostics.Debug.WriteLine($"[FILTERED] {deduped.Count} test runs after deduplication");
+
+            // Clear and add all items to prevent UI issues
+            TestRuns.Clear();
+            foreach (var testRun in deduped)
+            {
+                TestRuns.Add(testRun);
+            }
+
+            System.Diagnostics.Debug.WriteLine("[COMPLETED] ApplyLocalFiltersAsync");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[FILTER ERROR] {ex.Message}");
+        }
+    }
+
+    // Method to add a single test run (for SignalR notifications)
+    public async Task AddOrUpdateTestRunAsync(TestRun testRun)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"[ADD/UPDATE] TestRun {testRun.Id}");
+
+            // Save to local database
+            var local = new LocalTestRun
+            {
+                BackendId = testRun.Id,
+                ProjectName = testRun.ProjectName,
+                Status = testRun.Status,
+                Date = testRun.Date,
+                Summary = testRun.Summary,
+                LogOutput = testRun.LogOutput
+            };
+
+            // Check if exists first
+            var existing = await _database.GetTestRunByIdAsync(testRun.Id);
+            if (existing != null)
+            {
+                // Update existing
+                await _database.DeleteTestRunByIdAsync(testRun.Id);
+            }
+
+            await _database.SaveTestRunAsync(local);
+
+            // Refresh UI
+            await ApplyLocalFiltersAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ADD/UPDATE ERROR] {ex.Message}");
+        }
     }
 }
