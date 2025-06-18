@@ -2,7 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:charts="clr-namespace:Microcharts.Maui;assembly=Microcharts.Maui"
              x:Class="SeleniumDashboardApp.Views.Tabs.ChartsView"
-             x:Name="Root">
+             x:Name="Root"
+             BackgroundColor="Transparent">
 
     <VisualStateManager.VisualStateGroups>
         <VisualStateGroup x:Name="DeviceStates">
@@ -40,36 +41,136 @@
         </VisualStateGroup>
     </VisualStateManager.VisualStateGroups>
 
-    <VerticalStackLayout Padding="20" Spacing="20">
+    <VerticalStackLayout Padding="0" Spacing="20">
 
-        <HorizontalStackLayout>
-            <Label Text="Toon alle testruns" TextColor="{StaticResource PrimaryText}" VerticalOptions="Center" />
-            <Switch IsToggled="{Binding ShowAggregateData, Mode=TwoWay}" />
-        </HorizontalStackLayout>
+        <!-- Toggle switch in witte frame -->
+        <Frame BackgroundColor="White"
+               CornerRadius="8"
+               Padding="15"
+               HasShadow="False"
+               BorderColor="#E0E0E0">
+            <HorizontalStackLayout>
+                <Label Text="Toon alle testruns" 
+                       TextColor="#333" 
+                       VerticalOptions="Center"
+                       FontSize="16" />
+                <Switch IsToggled="{Binding ShowAggregateData, Mode=TwoWay}" 
+                        Margin="10,0,0,0"
+                        OnColor="#5D7285"
+                        ThumbColor="White" />
+            </HorizontalStackLayout>
+        </Frame>
 
         <FlexLayout Wrap="Wrap" JustifyContent="Center" AlignItems="Start" AlignContent="Start">
 
             <!-- Chart 1 -->
-            <Frame x:Name="Chart1" BorderColor="Black" BackgroundColor="White" Padding="10" Margin="10">
+            <Frame x:Name="Chart1" 
+                   BorderColor="#E0E0E0" 
+                   BackgroundColor="White" 
+                   Padding="15" 
+                   Margin="10"
+                   CornerRadius="8"
+                   HasShadow="False">
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="PointerOver">
+                            <VisualState.Setters>
+                                <Setter Property="BorderColor" Value="#007ACC" />
+                                <Setter Property="BackgroundColor" Value="#F8F9FA" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+                                <Setter Property="BorderColor" Value="#E0E0E0" />
+                                <Setter Property="BackgroundColor" Value="White" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateManager.VisualStateGroups>
                 <VerticalStackLayout>
-                    <Label Text="{Binding BarChart1Title}" TextColor="{StaticResource PrimaryText}" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center" />
-                    <charts:ChartView x:Name="Chart1View" Chart="{Binding BarChart1}" BackgroundColor="White" />
+                    <Label Text="{Binding BarChart1Title}" 
+                           TextColor="#333" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           HorizontalOptions="Center" 
+                           Margin="0,0,0,10" />
+                    <charts:ChartView x:Name="Chart1View" 
+                                      Chart="{Binding BarChart1}" 
+                                      BackgroundColor="White" />
                 </VerticalStackLayout>
             </Frame>
 
             <!-- Chart 2 -->
-            <Frame x:Name="Chart2" BorderColor="Black" BackgroundColor="White" Padding="10" Margin="10">
+            <Frame x:Name="Chart2" 
+                   BorderColor="#E0E0E0" 
+                   BackgroundColor="White" 
+                   Padding="15" 
+                   Margin="10"
+                   CornerRadius="8"
+                   HasShadow="False">
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="PointerOver">
+                            <VisualState.Setters>
+                                <Setter Property="BorderColor" Value="#007ACC" />
+                                <Setter Property="BackgroundColor" Value="#F8F9FA" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+                                <Setter Property="BorderColor" Value="#E0E0E0" />
+                                <Setter Property="BackgroundColor" Value="White" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateManager.VisualStateGroups>
                 <VerticalStackLayout>
-                    <Label Text="{Binding BarChart2Title}" TextColor="{StaticResource PrimaryText}" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center" />
-                    <charts:ChartView x:Name="Chart2View" Chart="{Binding BarChart2}" BackgroundColor="White" />
+                    <Label Text="{Binding BarChart2Title}" 
+                           TextColor="#333" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           HorizontalOptions="Center"
+                           Margin="0,0,0,10" />
+                    <charts:ChartView x:Name="Chart2View" 
+                                      Chart="{Binding BarChart2}" 
+                                      BackgroundColor="White" />
                 </VerticalStackLayout>
             </Frame>
 
             <!-- Chart 3 -->
-            <Frame x:Name="Chart3" BorderColor="Black" BackgroundColor="White" Padding="10" Margin="10">
+            <Frame x:Name="Chart3" 
+                   BorderColor="#E0E0E0" 
+                   BackgroundColor="White" 
+                   Padding="15" 
+                   Margin="10"
+                   CornerRadius="8"
+                   HasShadow="False">
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="PointerOver">
+                            <VisualState.Setters>
+                                <Setter Property="BorderColor" Value="#007ACC" />
+                                <Setter Property="BackgroundColor" Value="#F8F9FA" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+                                <Setter Property="BorderColor" Value="#E0E0E0" />
+                                <Setter Property="BackgroundColor" Value="White" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateManager.VisualStateGroups>
                 <VerticalStackLayout>
-                    <Label Text="{Binding BarChart3Title}" TextColor="{StaticResource PrimaryText}" FontSize="14" FontAttributes="Bold" HorizontalOptions="Center" />
-                    <charts:ChartView x:Name="Chart3View" Chart="{Binding BarChart3}" BackgroundColor="White" />
+                    <Label Text="{Binding BarChart3Title}" 
+                           TextColor="#333" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           HorizontalOptions="Center"
+                           Margin="0,0,0,10" />
+                    <charts:ChartView x:Name="Chart3View" 
+                                      Chart="{Binding BarChart3}" 
+                                      BackgroundColor="White" />
                 </VerticalStackLayout>
             </Frame>
 

@@ -1,54 +1,86 @@
 ﻿<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-xmlns:converters="clr-namespace:SeleniumDashboardApp.Converters"
+             xmlns:converters="clr-namespace:SeleniumDashboardApp.Converters"
              x:Class="SeleniumDashboardApp.Views.Tabs.DetailsView"
-             BackgroundColor="#f5f5f5"
-             Padding="20">
+             BackgroundColor="Transparent"
+             Padding="0">
 
     <ScrollView>
         <VerticalStackLayout Spacing="20">
 
             <!-- Titel -->
             <Label Text="Testuitvoering Details"
-                   FontSize="26"
+                   FontSize="20"
                    FontAttributes="Bold"
                    HorizontalOptions="Center"
-                   TextColor="#222" />
+                   TextColor="#333"
+                   Margin="0,0,0,10" />
 
-            <!-- Detailkaart -->
-            <Frame CornerRadius="12"
-                   HasShadow="True"
+            <!-- Detailkaart met MainPage styling -->
+            <Frame CornerRadius="8"
+                   HasShadow="False"
                    BackgroundColor="White"
+                   BorderColor="#E0E0E0"
                    Padding="20">
 
-                <VerticalStackLayout Spacing="12">
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="PointerOver">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="#F8F9FA" />
+                                <Setter Property="BorderColor" Value="#007ACC" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="White" />
+                                <Setter Property="BorderColor" Value="#E0E0E0" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateManager.VisualStateGroups>
+
+                <VerticalStackLayout Spacing="15">
 
                     <!-- Projectnaam -->
-                    <Label Text="Project:"
-                           FontAttributes="Bold"
-                           FontSize="16"
-                           TextColor="#333" />
-                    <Label Text="{Binding SelectedTestRun.ProjectName}"
-                           FontSize="16"
-                           TextColor="Black" />
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Project:"
+                               FontAttributes="Bold"
+                               FontSize="16"
+                               TextColor="#333" />
+                        <Label Text="{Binding SelectedTestRun.ProjectName}"
+                               FontSize="16"
+                               TextColor="Black" />
+                    </VerticalStackLayout>
 
                     <!-- Status -->
-                    <Label Text="Status:"
-                           FontAttributes="Bold"
-                           FontSize="16"
-                           TextColor="#333" />
-                    <Label Text="{Binding SelectedTestRun.Status}"
-                           FontSize="16"
-                           TextColor="{Binding SelectedTestRun.Status, Converter={StaticResource StatusColorConverter}}" />
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Status:"
+                               FontAttributes="Bold"
+                               FontSize="16"
+                               TextColor="#333" />
+                        <Frame BackgroundColor="{Binding SelectedTestRun.Status, Converter={StaticResource StatusColorConverter}}"
+                               CornerRadius="12"
+                               Padding="8,4"
+                               HasShadow="False"
+                               HorizontalOptions="Start">
+                            <Label Text="{Binding SelectedTestRun.Status}"
+                                   TextColor="White"
+                                   FontSize="12"
+                                   FontAttributes="Bold" />
+                        </Frame>
+                    </VerticalStackLayout>
 
                     <!-- Datum -->
-                    <Label Text="Datum:"
-                           FontAttributes="Bold"
-                           FontSize="16"
-                           TextColor="#333" />
-                    <Label Text="{Binding SelectedTestRun.Date, StringFormat='{}{0:dd-MM-yyyy HH:mm}'}"
-                           FontSize="16"
-                           TextColor="Black" />
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Datum:"
+                               FontAttributes="Bold"
+                               FontSize="16"
+                               TextColor="#333" />
+                        <Label Text="{Binding SelectedTestRun.Date, StringFormat='{}{0:dd-MM-yyyy HH:mm}'}"
+                               FontSize="16"
+                               TextColor="Black" />
+                    </VerticalStackLayout>
 
                 </VerticalStackLayout>
             </Frame>

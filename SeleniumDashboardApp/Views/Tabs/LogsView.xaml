@@ -3,63 +3,152 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:converters="clr-namespace:SeleniumDashboardApp.Converters"
     xmlns:vm="clr-namespace:SeleniumDashboardApp.ViewModels"
-    x:Class="SeleniumDashboardApp.Views.Tabs.LogsView">
+    x:Class="SeleniumDashboardApp.Views.Tabs.LogsView"
+    BackgroundColor="Transparent">
 
-    <VerticalStackLayout Padding="20" Spacing="12">
-        <!-- Titel -->
-        <Label Text="Logboek"
-           FontSize="20"
-           FontAttributes="Bold"
-           TextColor="{StaticResource PrimaryText}" />
+    <VerticalStackLayout Padding="0" Spacing="20">
 
-        <!-- Intro -->
-        <Label Text="Loginformatie voor de geselecteerde test:"
-           FontSize="14"
-           TextColor="{StaticResource PrimaryText}" />
+        <!-- Titel en intro in witte frame -->
+        <Frame BackgroundColor="White"
+               CornerRadius="8"
+               Padding="20"
+               HasShadow="False"
+               BorderColor="#E0E0E0">
+            <VerticalStackLayout Spacing="12">
+                <Label Text="Logboek"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       TextColor="#333" />
 
-        <!-- Samenvatting -->
-        <Label Text="{Binding SelectedTestRun.Summary}"
-           FontAttributes="Italic"
-           TextColor="{StaticResource PrimaryText}" />
+                <Label Text="Loginformatie voor de geselecteerde test:"
+                       FontSize="14"
+                       TextColor="#333" />
 
-        <!-- Logoutput -->
-        <ScrollView>
-            <Frame BackgroundColor="#eeeeee"
-               BorderColor="Black"
-               Padding="12"
-               CornerRadius="4"
-               Margin="0,10,0,0">
-                <Editor x:Name="LogEditor"
-                    Text="{Binding SelectedTestRun.LogOutput}"
-                    FontFamily="Courier New"
-                    FontSize="12"
-                    TextColor="Black"
-                    BackgroundColor="Transparent"
-                    AutoSize="TextChanges"
-                    IsReadOnly="True" />
-            </Frame>
-        </ScrollView>
+                <Label Text="{Binding SelectedTestRun.Summary}"
+                       FontAttributes="Italic"
+                       TextColor="DimGray"
+                       FontSize="14" />
+            </VerticalStackLayout>
+        </Frame>
 
-        <!-- Knoppen onder log, links uitgelijnd -->
-        <HorizontalStackLayout HorizontalOptions="Start"
-                       Spacing="12"
-                       Margin="0,10,0,0">
-            <Button Text="📋"
-            WidthRequest="40"
-            HeightRequest="40"
-            CornerRadius="6"
-            FontSize="16"
-            Clicked="OnCopyClicked"
-            BackgroundColor="#cccccc"
-            TextColor="Black" />
-            <Button Text="⬇️"
-            WidthRequest="40"
-            HeightRequest="40"
-            CornerRadius="6"
-            FontSize="16"
-            Clicked="OnDownloadClicked"
-            BackgroundColor="#cccccc"
-            TextColor="Black" />
-        </HorizontalStackLayout>
+        <!-- Logoutput in witte frame -->
+        <Frame BackgroundColor="White"
+               CornerRadius="8"
+               Padding="0"
+               HasShadow="False"
+               BorderColor="#E0E0E0">
+
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="#F8F9FA" />
+                            <Setter Property="BorderColor" Value="#007ACC" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Normal">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="White" />
+                            <Setter Property="BorderColor" Value="#E0E0E0" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+
+            <ScrollView>
+                <Frame BackgroundColor="#F8F9FA"
+                       BorderColor="#DDD"
+                       Padding="15"
+                       CornerRadius="4"
+                       Margin="15">
+                    <Editor x:Name="LogEditor"
+                            Text="{Binding SelectedTestRun.LogOutput}"
+                            FontFamily="Courier New"
+                            FontSize="12"
+                            TextColor="Black"
+                            BackgroundColor="Transparent"
+                            AutoSize="TextChanges"
+                            IsReadOnly="True" />
+                </Frame>
+            </ScrollView>
+        </Frame>
+
+        <!-- Knoppen in witte frame -->
+        <Frame BackgroundColor="White"
+               CornerRadius="8"
+               Padding="20"
+               HasShadow="False"
+               BorderColor="#E0E0E0"
+               HorizontalOptions="Start">
+            <HorizontalStackLayout Spacing="12">
+                <Button Text="📋"
+                        WidthRequest="44"
+                        HeightRequest="44"
+                        CornerRadius="8"
+                        FontSize="16"
+                        Clicked="OnCopyClicked"
+                        BackgroundColor="Transparent"
+                        TextColor="Black"
+                        BorderColor="#DDD"
+                        BorderWidth="1">
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="PointerOver">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="#F8F9FA" />
+                                    <Setter Property="Scale" Value="1.05" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="Transparent" />
+                                    <Setter Property="Scale" Value="1.0" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="#E9ECEF" />
+                                    <Setter Property="Scale" Value="0.95" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
+                </Button>
+
+                <Button Text="⬇️"
+                        WidthRequest="44"
+                        HeightRequest="44"
+                        CornerRadius="8"
+                        FontSize="16"
+                        Clicked="OnDownloadClicked"
+                        BackgroundColor="Transparent"
+                        TextColor="Black"
+                        BorderColor="#DDD"
+                        BorderWidth="1">
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="PointerOver">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="#F8F9FA" />
+                                    <Setter Property="Scale" Value="1.05" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="Transparent" />
+                                    <Setter Property="Scale" Value="1.0" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="#E9ECEF" />
+                                    <Setter Property="Scale" Value="0.95" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
+                </Button>
+            </HorizontalStackLayout>
+        </Frame>
     </VerticalStackLayout>
 </ContentView>

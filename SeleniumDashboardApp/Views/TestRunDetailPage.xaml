@@ -8,7 +8,7 @@
     Title="Testdetails"
     Shell.NavBarIsVisible="False"
     Padding="0"
-    BackgroundColor="{StaticResource PrimaryBackground}">
+    BackgroundColor="#34495E">
 
     <ContentPage.Resources>
         <DataTemplate x:Key="DetailsTemplate">
@@ -33,34 +33,158 @@
         <shared:TopBarView Grid.Row="0" />
 
         <!-- 🔽 Tabbed content -->
-        <ScrollView Grid.Row="1">
-            <VerticalStackLayout Padding="16" Spacing="12">
+        <ScrollView Grid.Row="1" BackgroundColor="#F5F5F5">
+            <VerticalStackLayout Padding="20" Spacing="20">
                 <Label Text="{Binding SelectedTestRun.ProjectName}"
-                       FontSize="20"
+                       FontSize="24"
                        FontAttributes="Bold"
-                       TextColor="{StaticResource PrimaryText}"
+                       TextColor="#333"
                        HorizontalOptions="Center"
-                       Margin="0,10,0,0" />
+                       Margin="0,10,0,10" />
 
-                <HorizontalStackLayout Spacing="0"
-                       Margin="10,10,0,0"
+                <!-- Tab interface met correcte grijze kleuren -->
+                <Frame BackgroundColor="#5D7285"
+                       CornerRadius="10"
+                       Padding="4"
+                       HasShadow="False"
+                       BorderColor="Transparent"
                        HorizontalOptions="Start">
-                    <Button Text="Details"
-                            Command="{Binding ChangeTabCommand}"
-                            CommandParameter="Details"
-                            Style="{Binding SelectedTab, Converter={StaticResource TabStyleConverter}, ConverterParameter=Details}" />
+                    <HorizontalStackLayout Spacing="2">
 
-                    <Button Text="Logs"
-                            Command="{Binding ChangeTabCommand}"
-                            CommandParameter="Logs"
-                            Style="{Binding SelectedTab, Converter={StaticResource TabStyleConverter}, ConverterParameter=Logs}" />
+                        <!-- Details Tab -->
+                        <Button Text="Details"
+                                Command="{Binding ChangeTabCommand}"
+                                CommandParameter="Details"
+                                BackgroundColor="Transparent"
+                                TextColor="White"
+                                FontSize="14"
+                                FontAttributes="Bold"
+                                Padding="20,12"
+                                CornerRadius="8"
+                                BorderWidth="0">
+                            <Button.Triggers>
+                                <DataTrigger TargetType="Button" 
+                                           Binding="{Binding SelectedTab}" 
+                                           Value="Details">
+                                    <Setter Property="BackgroundColor" Value="White" />
+                                    <Setter Property="TextColor" Value="#333" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="PointerOver">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="White" />
+                                            <Setter Property="TextColor" Value="#333" />
+                                            <Setter Property="Scale" Value="1.02" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Normal">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                            <Setter Property="TextColor" Value="White" />
+                                            <Setter Property="Scale" Value="1.0" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <VisualState.Setters>
+                                            <Setter Property="Scale" Value="0.98" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                        </Button>
 
-                    <Button Text="Grafieken"
-                            Command="{Binding ChangeTabCommand}"
-                            CommandParameter="Charts"
-                            Style="{Binding SelectedTab, Converter={StaticResource TabStyleConverter}, ConverterParameter=Charts}" />
-                </HorizontalStackLayout>
-                
+                        <!-- Logs Tab -->
+                        <Button Text="Logs"
+                                Command="{Binding ChangeTabCommand}"
+                                CommandParameter="Logs"
+                                BackgroundColor="Transparent"
+                                TextColor="White"
+                                FontSize="14"
+                                FontAttributes="Bold"
+                                Padding="20,12"
+                                CornerRadius="8"
+                                BorderWidth="0">
+                            <Button.Triggers>
+                                <DataTrigger TargetType="Button" 
+                                           Binding="{Binding SelectedTab}" 
+                                           Value="Logs">
+                                    <Setter Property="BackgroundColor" Value="White" />
+                                    <Setter Property="TextColor" Value="#333" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="PointerOver">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="White" />
+                                            <Setter Property="TextColor" Value="#333" />
+                                            <Setter Property="Scale" Value="1.02" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Normal">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                            <Setter Property="TextColor" Value="White" />
+                                            <Setter Property="Scale" Value="1.0" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <VisualState.Setters>
+                                            <Setter Property="Scale" Value="0.98" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                        </Button>
+
+                        <!-- Charts Tab -->
+                        <Button Text="Grafieken"
+                                Command="{Binding ChangeTabCommand}"
+                                CommandParameter="Charts"
+                                BackgroundColor="Transparent"
+                                TextColor="White"
+                                FontSize="14"
+                                FontAttributes="Bold"
+                                Padding="20,12"
+                                CornerRadius="8"
+                                BorderWidth="0">
+                            <Button.Triggers>
+                                <DataTrigger TargetType="Button" 
+                                           Binding="{Binding SelectedTab}" 
+                                           Value="Charts">
+                                    <Setter Property="BackgroundColor" Value="White" />
+                                    <Setter Property="TextColor" Value="#333" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="PointerOver">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="White" />
+                                            <Setter Property="TextColor" Value="#333" />
+                                            <Setter Property="Scale" Value="1.02" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Normal">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                            <Setter Property="TextColor" Value="White" />
+                                            <Setter Property="Scale" Value="1.0" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <VisualState.Setters>
+                                            <Setter Property="Scale" Value="0.98" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                        </Button>
+                    </HorizontalStackLayout>
+                </Frame>
+
                 <ContentView x:Name="TabContentView" />
             </VerticalStackLayout>
         </ScrollView>
