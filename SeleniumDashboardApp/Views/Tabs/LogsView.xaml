@@ -20,7 +20,7 @@
                        FontAttributes="Bold"
                        TextColor="#333" />
 
-                <Label Text="Loginformatie voor de geselecteerde test:"
+                <Label Text="Zie hier de Loginformatie voor de geselecteerde testrun:"
                        FontSize="14"
                        TextColor="#333" />
 

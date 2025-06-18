@@ -7,10 +7,44 @@ public partial class TopBarView : ContentView
 {
     private readonly AuthService _authService;
 
+    // Bindable property voor back button visibility
+    public static readonly BindableProperty ShowBackButtonProperty =
+        BindableProperty.Create(nameof(ShowBackButton), typeof(bool), typeof(TopBarView), false, propertyChanged: OnShowBackButtonChanged);
+
+    public bool ShowBackButton
+    {
+        get => (bool)GetValue(ShowBackButtonProperty);
+        set => SetValue(ShowBackButtonProperty, value);
+    }
+
+    private static void OnShowBackButtonChanged(BindableObject bindable, object oldValue, object newValue)
+    {
+        if (bindable is TopBarView topBar && topBar.BackButton != null)
+        {
+            topBar.BackButton.IsVisible = (bool)newValue;
+        }
+    }
+
     public TopBarView()
     {
         InitializeComponent();
         _authService = new AuthService(); // Or use DI if you have it set up
+    }
+
+    private async void OnBackClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            // Navigate back to previous page
+            if (Application.Current?.MainPage?.Navigation != null)
+            {
+                await Application.Current.MainPage.Navigation.PopAsync(true);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error navigating back: {ex.Message}");
+        }
     }
 
     private async void OnLogoutClicked(object sender, EventArgs e)

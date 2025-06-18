@@ -1,43 +1,66 @@
 ﻿<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="SeleniumDashboardApp.Views.Shared.TopBarView"
+             x:Name="Root"
              Padding="0"
              Margin="0">
+
     <Grid Padding="12" BackgroundColor="#34495E">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
-        <Label Text="Selenium Dashboard"
-               FontSize="22"
-               FontAttributes="Bold"
-               VerticalOptions="Center"
-               TextColor="White"
-               Grid.Column="0" />
+        <!-- Left side: Back button + Title -->
+        <StackLayout Grid.Column="0" 
+                     Orientation="Horizontal" 
+                     VerticalOptions="Center"
+                     Spacing="12">
 
-        <!-- Add loading indicator (initially hidden) -->
+            <Label x:Name="BackButton"
+                   Text="←"
+                   FontSize="28"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   VerticalOptions="Center"
+                   Padding="8,0"
+                   IsVisible="{Binding Source={x:Reference Root}, Path=ShowBackButton}">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackClicked" />
+                </Label.GestureRecognizers>
+            </Label>
+
+            <Label Text="Selenium Dashboard"
+                   FontSize="22"
+                   FontAttributes="Bold"
+                   VerticalOptions="Center"
+                   TextColor="White" />
+        </StackLayout>
+
+        <!-- Loading indicator -->
         <ActivityIndicator x:Name="LoadingIndicator"
+                          Grid.Column="1"
                           IsVisible="False"
                           IsRunning="True"
                           Color="White"
                           HeightRequest="20"
                           WidthRequest="20"
                           VerticalOptions="Center"
-                          HorizontalOptions="End"
-                          Margin="0,0,10,0"
-                          Grid.Column="1" />
+                          Margin="0,0,10,0" />
 
+        <!-- Logout button -->
         <Button x:Name="LogoutButton"
+                Grid.Column="2"
                 Text="Uitloggen"
                 FontSize="14"
-                Padding="12,6"
+                Padding="15,8"
                 BackgroundColor="Transparent"
                 TextColor="White"
                 BorderColor="White"
                 BorderWidth="1"
-                CornerRadius="6"
-                Clicked="OnLogoutClicked"
-                Grid.Column="1" />
+                CornerRadius="8"
+                VerticalOptions="Center"
+                Clicked="OnLogoutClicked" />
     </Grid>
 </ContentView>
