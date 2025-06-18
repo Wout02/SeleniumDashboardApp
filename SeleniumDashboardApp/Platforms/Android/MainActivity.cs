@@ -19,6 +19,14 @@ public class MainActivity : MauiAppCompatActivity
         System.Diagnostics.Debug.WriteLine($"Intent DataString: {Intent?.DataString}");
 
         base.OnCreate(savedInstanceState);
+
+        // Stel de statusbalk kleur in - gebruik Color.ParseColor direct
+        if (Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop && Window != null)
+        {
+            // Converteer hex kleur naar Android Color
+            var color = global::Android.Graphics.Color.ParseColor("#34495E");
+            Window.SetStatusBarColor(color);
+        }
     }
 
     protected override void OnResume()
@@ -27,7 +35,6 @@ public class MainActivity : MauiAppCompatActivity
         System.Diagnostics.Debug.WriteLine($"Intent Action: {Intent?.Action}");
         System.Diagnostics.Debug.WriteLine($"Intent Data: {Intent?.Data}");
         System.Diagnostics.Debug.WriteLine($"Intent DataString: {Intent?.DataString}");
-
         base.OnResume();
     }
 
@@ -37,7 +44,6 @@ public class MainActivity : MauiAppCompatActivity
         System.Diagnostics.Debug.WriteLine($"Intent Action: {intent?.Action}");
         System.Diagnostics.Debug.WriteLine($"Intent Data: {intent?.Data}");
         System.Diagnostics.Debug.WriteLine($"Intent DataString: {intent?.DataString}");
-
         base.OnNewIntent(intent);
     }
 }

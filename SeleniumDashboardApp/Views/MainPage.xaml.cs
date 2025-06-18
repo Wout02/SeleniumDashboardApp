@@ -29,11 +29,11 @@ public partial class MainPage : ContentPage
         BackgroundColor = Colors.White;
         Title = "Selenium Dashboard";
 
-        viewModel.PropertyChanged += (s, e) =>
+/*        viewModel.PropertyChanged += (s, e) =>
         {
             if (e.PropertyName == nameof(viewModel.SelectedStatus))
                 UpdateStatusDisplay(viewModel.SelectedStatus);
-        };
+        };*/
 
         // Subscribe to SignalR notifications
         SetupSignalRNotifications();
@@ -204,11 +204,11 @@ public partial class MainPage : ContentPage
         }
     }
 
-    private void UpdateStatusDisplay(string status)
+/*    private void UpdateStatusDisplay(string status)
     {
         StatusDisplay.Text = string.IsNullOrWhiteSpace(status) ? string.Empty : $"Status: {status}";
         StatusDisplay.IsVisible = !string.IsNullOrWhiteSpace(status);
-    }
+    }*/
 
     private void OnToggleSearchClicked(object sender, EventArgs e)
     {

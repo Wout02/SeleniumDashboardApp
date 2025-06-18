@@ -3,7 +3,7 @@
              x:Class="SeleniumDashboardApp.Views.Shared.TopBarView"
              Padding="0"
              Margin="0">
-    <Grid Padding="12" BackgroundColor="{StaticResource AccentColor}">
+    <Grid Padding="12" BackgroundColor="#34495E">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
@@ -13,14 +13,14 @@
                FontSize="22"
                FontAttributes="Bold"
                VerticalOptions="Center"
-               TextColor="{StaticResource HeaderTextColor}"
+               TextColor="White"
                Grid.Column="0" />
 
         <!-- Add loading indicator (initially hidden) -->
         <ActivityIndicator x:Name="LoadingIndicator"
                           IsVisible="False"
                           IsRunning="True"
-                          Color="{StaticResource HeaderTextColor}"
+                          Color="White"
                           HeightRequest="20"
                           WidthRequest="20"
                           VerticalOptions="Center"
@@ -31,9 +31,12 @@
         <Button x:Name="LogoutButton"
                 Text="Uitloggen"
                 FontSize="14"
-                Padding="8,4"
+                Padding="12,6"
                 BackgroundColor="Transparent"
-                TextColor="{StaticResource HeaderTextColor}"
+                TextColor="White"
+                BorderColor="White"
+                BorderWidth="1"
+                CornerRadius="6"
                 Clicked="OnLogoutClicked"
                 Grid.Column="1" />
     </Grid>
