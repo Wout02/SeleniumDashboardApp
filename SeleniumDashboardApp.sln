@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeleniumDashboardApi", "Sel
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeleniumDashboard.Shared", "SeleniumDashboard.Shared\SeleniumDashboard.Shared.csproj", "{173FD698-3943-4070-93AB-7627ED09FBCA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeleniumDashboardApp.UITests", "SeleniumDashboardApp.UITests\SeleniumDashboardApp.UITests.csproj", "{CC8DAD65-5FEC-437D-92DC-B8DF02F869F9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,6 +30,10 @@ Global
 		{173FD698-3943-4070-93AB-7627ED09FBCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{173FD698-3943-4070-93AB-7627ED09FBCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{173FD698-3943-4070-93AB-7627ED09FBCA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC8DAD65-5FEC-437D-92DC-B8DF02F869F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC8DAD65-5FEC-437D-92DC-B8DF02F869F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC8DAD65-5FEC-437D-92DC-B8DF02F869F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC8DAD65-5FEC-437D-92DC-B8DF02F869F9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
