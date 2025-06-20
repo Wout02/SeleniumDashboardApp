@@ -31,12 +31,10 @@ public partial class AuthWebViewPage : ContentPage
 
         System.Diagnostics.Debug.WriteLine("=== AUTH WEBVIEW: Loading Auth0 URL ===");
 
-        // Load the auth URL
         AuthWebView.Source = _authUrl;
         AuthWebView.IsVisible = true;
         LoadingStack.IsVisible = false;
 
-        // Start a simple timer that checks URL changes
         Device.StartTimer(TimeSpan.FromSeconds(2), () =>
         {
             if (_authCompleted) return false;
@@ -45,13 +43,11 @@ public partial class AuthWebViewPage : ContentPage
             {
                 var currentUrl = AuthWebView.Source?.ToString() ?? "";
 
-                // Check if URL changed from login page
                 if (!string.IsNullOrEmpty(currentUrl) && currentUrl != _lastUrl)
                 {
                     System.Diagnostics.Debug.WriteLine($"URL changed: {currentUrl}");
                     _lastUrl = currentUrl;
 
-                    // If we're no longer on the auth0 login page, try to get auth code
                     if (!currentUrl.Contains("authorize") && currentUrl.Contains("auth0.com"))
                     {
                         System.Diagnostics.Debug.WriteLine("Detected redirect after login - trying to extract auth code");
@@ -64,7 +60,7 @@ public partial class AuthWebViewPage : ContentPage
                 System.Diagnostics.Debug.WriteLine($"Timer error: {ex.Message}");
             }
 
-            return !_authCompleted; // Continue until auth completed
+            return !_authCompleted;
         });
     }
 
@@ -78,18 +74,15 @@ public partial class AuthWebViewPage : ContentPage
             {
                 try
                 {
-                    // Try to get the current URL and check for auth code
                     var currentUrl = AuthWebView.Source?.ToString() ?? "";
                     System.Diagnostics.Debug.WriteLine($"Trying to extract auth code from: {currentUrl}");
 
-                    // Check if URL contains auth code
                     if (currentUrl.Contains("code="))
                     {
                         await HandleUrlWithCode(currentUrl);
                         return;
                     }
 
-                    // Try JavaScript to get the actual current URL (in case WebView.Source is cached)
                     var actualUrl = await AuthWebView.EvaluateJavaScriptAsync("window.location.href");
                     System.Diagnostics.Debug.WriteLine($"Actual URL from JavaScript: {actualUrl}");
 
@@ -99,7 +92,6 @@ public partial class AuthWebViewPage : ContentPage
                         return;
                     }
 
-                    // Try to check if we can find any hidden form fields or elements with auth code
                     var authCodeScript = @"
                         // Look for auth code in various places
                         var url = window.location.href;
@@ -135,12 +127,10 @@ public partial class AuthWebViewPage : ContentPage
                         return;
                     }
 
-                    // If we're here and not on a login page anymore, something might be wrong
                     if (!currentUrl.Contains("login") && currentUrl.Contains("auth0.com"))
                     {
                         System.Diagnostics.Debug.WriteLine("Seems like login completed but no auth code found");
 
-                        // Wait a bit more and try one more time
                         await Task.Delay(3000);
 
                         if (!_authCompleted)
@@ -154,7 +144,6 @@ public partial class AuthWebViewPage : ContentPage
                             }
                             else
                             {
-                                // Last resort: manually redirect to callback
                                 System.Diagnostics.Debug.WriteLine("Manually redirecting to callback URL");
                                 AuthWebView.Source = _redirectUri + "?manual_redirect=true";
                             }
@@ -241,7 +230,6 @@ public partial class AuthWebViewPage : ContentPage
     {
         System.Diagnostics.Debug.WriteLine($"=== NAVIGATING TO: {e.Url} ===");
 
-        // Check for callback URL immediately
         if (e.Url.Contains("code=") || e.Url.Contains("error="))
         {
             System.Diagnostics.Debug.WriteLine("Found callback URL during navigation!");
@@ -253,7 +241,6 @@ public partial class AuthWebViewPage : ContentPage
     {
         System.Diagnostics.Debug.WriteLine($"=== NAVIGATED TO: {e.Url} ===");
 
-        // Check for callback URL after navigation
         if (e.Url.Contains("code=") || e.Url.Contains("error="))
         {
             System.Diagnostics.Debug.WriteLine("Found callback URL after navigation!");

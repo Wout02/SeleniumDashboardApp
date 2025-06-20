@@ -11,7 +11,7 @@ public partial class DashboardViewModel : ObservableObject
 {
     private readonly ApiService _apiService;
     private readonly LocalDatabaseService _database;
-    private bool _isLoading = false; // Prevent concurrent loads
+    private bool _isLoading = false;
 
     [ObservableProperty]
     private ObservableCollection<TestRun> testRuns = new();
@@ -29,15 +29,12 @@ public partial class DashboardViewModel : ObservableObject
     {
         _apiService = apiService;
         _database = database;
-
-        // Don't auto-load in constructor - let the view handle initial load
-        // This prevents race conditions with OnAppearing
     }
 
     [RelayCommand]
     public async Task RefreshTestRuns()
     {
-        if (_isLoading) return; // Prevent concurrent refresh calls
+        if (_isLoading) return;
 
         await LoadAndSyncRunsAsync();
     }
@@ -94,7 +91,6 @@ public partial class DashboardViewModel : ObservableObject
 
                 foreach (var run in runs)
                 {
-                    // Controleer of de testRun met dit ID daadwerkelijk opgevraagd kan worden
                     var exists = await _apiService.GetTestRunAsync(run.Id);
 
                     if (exists != null)
@@ -130,7 +126,6 @@ public partial class DashboardViewModel : ObservableObject
         {
             System.Diagnostics.Debug.WriteLine($"[API Fout] {ex.Message}");
 
-            // On API error, still try to show local data
             await ApplyLocalFiltersAsync();
         }
         finally
@@ -167,7 +162,6 @@ public partial class DashboardViewModel : ObservableObject
                 LogOutput = run.LogOutput
             }).ToList();
 
-            // Ensure no duplicates by ID (extra safety)
             var deduped = converted
                 .GroupBy(x => x.Id)
                 .Select(g => g.First())
@@ -176,7 +170,6 @@ public partial class DashboardViewModel : ObservableObject
 
             System.Diagnostics.Debug.WriteLine($"[FILTERED] {deduped.Count} test runs after deduplication");
 
-            // Clear and add all items to prevent UI issues
             TestRuns.Clear();
             foreach (var testRun in deduped)
             {
@@ -191,14 +184,12 @@ public partial class DashboardViewModel : ObservableObject
         }
     }
 
-    // Method to add a single test run (for SignalR notifications)
     public async Task AddOrUpdateTestRunAsync(TestRun testRun)
     {
         try
         {
             System.Diagnostics.Debug.WriteLine($"[ADD/UPDATE] TestRun {testRun.Id}");
 
-            // Save to local database
             var local = new LocalTestRun
             {
                 BackendId = testRun.Id,
@@ -209,17 +200,14 @@ public partial class DashboardViewModel : ObservableObject
                 LogOutput = testRun.LogOutput
             };
 
-            // Check if exists first
             var existing = await _database.GetTestRunByIdAsync(testRun.Id);
             if (existing != null)
             {
-                // Update existing
                 await _database.DeleteTestRunByIdAsync(testRun.Id);
             }
 
             await _database.SaveTestRunAsync(local);
 
-            // Refresh UI
             await ApplyLocalFiltersAsync();
         }
         catch (Exception ex)

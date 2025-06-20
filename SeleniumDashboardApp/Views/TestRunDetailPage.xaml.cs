@@ -15,12 +15,10 @@ public partial class TestRunDetailPage : ContentPage
         {
             Console.WriteLine($"[DEBUG] TestRunDetailPage constructor START - ID: {testRunId}");
 
-            // Initialize component first
             InitializeComponent();
 
             Console.WriteLine($"[DEBUG] InitializeComponent completed");
 
-            // Null check
             if (viewModel == null)
                 throw new ArgumentNullException(nameof(viewModel), "ViewModel cannot be null");
 
@@ -29,7 +27,6 @@ public partial class TestRunDetailPage : ContentPage
 
             Console.WriteLine($"[DEBUG] ViewModel bound");
 
-            // Load test run data in background to avoid blocking UI
             _ = Task.Run(async () =>
             {
                 try
@@ -43,7 +40,6 @@ public partial class TestRunDetailPage : ContentPage
                 }
             });
 
-            // Setup tabs
             _templateSelector = new TabTemplateSelector
             {
                 DetailsTemplate = new DataTemplate(typeof(DetailsView)),
@@ -51,9 +47,6 @@ public partial class TestRunDetailPage : ContentPage
                 ChartsTemplate = new DataTemplate(typeof(ChartsView))
             };
 
-            Console.WriteLine($"[DEBUG] Tab templates created");
-
-            // Handle tab changes
             _viewModel.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(_viewModel.SelectedTab))
@@ -62,7 +55,6 @@ public partial class TestRunDetailPage : ContentPage
                 }
             };
 
-            // Set initial content
             UpdateTabContent();
 
             Console.WriteLine($"[DEBUG] TestRunDetailPage constructor COMPLETED - ID: {testRunId}");
@@ -71,7 +63,7 @@ public partial class TestRunDetailPage : ContentPage
         {
             Console.WriteLine($"[ERROR] TestRunDetailPage constructor failed: {ex.Message}");
             Console.WriteLine($"[ERROR] Stack trace: {ex.StackTrace}");
-            throw; // Re-throw to let caller handle
+            throw;
         }
     }
 

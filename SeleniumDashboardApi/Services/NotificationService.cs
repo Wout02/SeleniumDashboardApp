@@ -27,11 +27,7 @@ namespace SeleniumDashboardApi.Services
             {
                 _logger.LogInformation("Sending new test run notification");
 
-                // Stuur naar alle clients
                 await _hubContext.Clients.All.SendAsync("NewTestRun", testRun);
-
-                // Optioneel: stuur naar specifieke groep (bijv. per user/project)
-                // await _hubContext.Clients.Group("all-users").SendAsync("NewTestRun", testRun);
 
                 _logger.LogInformation("New test run notification sent successfully");
             }

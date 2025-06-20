@@ -53,14 +53,12 @@ namespace SeleniumDashboardApp.Services
 #if ANDROID
                 await ShowAndroidNotificationAsync(title, message, data);
 #else
-                // Fallback for other platforms
                 System.Diagnostics.Debug.WriteLine($"🔔 NOTIFICATION: {title} - {message}");
 #endif
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to show notification");
-                // Always show debug fallback
                 System.Diagnostics.Debug.WriteLine($"🔔 NOTIFICATION (error fallback): {title} - {message}");
             }
         }

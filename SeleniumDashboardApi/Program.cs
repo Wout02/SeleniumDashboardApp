@@ -5,22 +5,16 @@ using SeleniumDashboardApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
-// Database configuratie - ALTIJD PostgreSQL
 var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 
 if (!string.IsNullOrEmpty(databaseUrl))
 {
-    // Production: PostgreSQL op Railway
-    Console.WriteLine("Using PostgreSQL database (Production)");
-
-    // Parse Railway DATABASE_URL format: postgres://user:pass@host:port/db
     var databaseUri = new Uri(databaseUrl);
     var userInfo = databaseUri.UserInfo.Split(':');
 
@@ -35,21 +29,16 @@ if (!string.IsNullOrEmpty(databaseUrl))
         TrustServerCertificate = true
     }.ToString();
 
-    Console.WriteLine($"PostgreSQL connection string: {connectionString}");
-
     builder.Services.AddDbContext<TestRunDbContext>(options =>
         options.UseNpgsql(connectionString));
 }
 else
 {
-    // Development: Ook PostgreSQL (tijdelijk voor migrations)
-    Console.WriteLine("Using PostgreSQL database (Development)");
     var connectionString = "Host=localhost;Database=seleniumdashboard_dev;Username=postgres;Password=password;";
     builder.Services.AddDbContext<TestRunDbContext>(options =>
         options.UseNpgsql(connectionString));
 }
 
-// CORS configuratie
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -60,22 +49,18 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Port configuratie voor Railway
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://*:{port}");
 
 var app = builder.Build();
 
-// Database migraties uitvoeren bij startup
 try
 {
     using (var scope = app.Services.CreateScope())
     {
         var context = scope.ServiceProvider.GetRequiredService<TestRunDbContext>();
 
-        Console.WriteLine("Running database migrations...");
         context.Database.Migrate();
-        Console.WriteLine("Database migrations completed successfully");
     }
 }
 catch (Exception ex)
@@ -83,7 +68,6 @@ catch (Exception ex)
     Console.WriteLine($"Database migration failed: {ex.Message}");
 }
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -91,7 +75,6 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    // Ook Swagger in production voor testen
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
@@ -105,8 +88,6 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHub<TestRunHub>("/testrunhub");
 
-// Health check endpoint
 app.MapGet("/health", () => "API is running!");
 
-Console.WriteLine($"Starting application on port {port}");
 app.Run();

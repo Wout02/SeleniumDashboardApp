@@ -1,5 +1,4 @@
-﻿// MauiProgram.cs - Fix for Microcharts.Maui 1.0.0
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SeleniumDashboardApp.Services;
 using SeleniumDashboardApp.ViewModels;
 using SeleniumDashboardApp.Views;
@@ -19,7 +18,7 @@ public static class MauiProgram
             .UseMauiApp<App>()
             .UseSkiaSharp()
             .UseMauiCommunityToolkit()
-            .UseMicrocharts() // This should work with 1.0.0
+            .UseMicrocharts()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -27,7 +26,6 @@ public static class MauiProgram
 
         string dbPath = Path.Combine(FileSystem.AppDataDirectory, "testruns.db3");
 
-        // Services
         builder.Services.AddSingleton(new LocalDatabaseService(dbPath));
         builder.Services.AddHttpClient<ApiService>(client =>
         {
@@ -37,11 +35,9 @@ public static class MauiProgram
         builder.Services.AddSingleton<ISignalRService, SignalRService>();
         builder.Services.AddSingleton<ILocalNotificationService, SimpleRealNotificationService>();
 
-        // ViewModels
         builder.Services.AddSingleton<DashboardViewModel>();
         builder.Services.AddTransient<TestRunDetailViewModel>();
 
-        // Pages
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<TestRunDetailPage>();
 

@@ -36,10 +36,8 @@ public partial class ChartsView : ContentView
         {
             Console.WriteLine("[CHARTS VIEW] BindingContext is geldig ViewModel");
 
-            // Laad grafieken bij eerste bind
             _ = vm.LoadChartsAsync();
 
-            // Luister naar veranderingen aan ShowAggregateData zodat we kunnen herladen
             vm.PropertyChanged += (_, e) =>
             {
                 if (e.PropertyName == nameof(vm.ShowAggregateData))

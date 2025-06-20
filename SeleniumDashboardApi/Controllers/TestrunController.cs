@@ -40,7 +40,6 @@ namespace SeleniumDashboardApi.Controllers
 
                 _logger.LogInformation($"Test run saved to database with ID: {run.Id}");
 
-                // Send SignalR notification for new test run
                 await _notificationService.NotifyNewTestRun(new
                 {
                     id = run.Id.ToString(),
@@ -70,7 +69,6 @@ namespace SeleniumDashboardApi.Controllers
                 if (existingRun == null)
                     return NotFound();
 
-                // Update properties
                 existingRun.Status = updatedRun.Status;
                 existingRun.Summary = updatedRun.Summary;
                 existingRun.LogOutput = updatedRun.LogOutput;
@@ -80,7 +78,6 @@ namespace SeleniumDashboardApi.Controllers
 
                 _logger.LogInformation($"Test run {id} updated");
 
-                // Send SignalR notification for test run update
                 await _notificationService.NotifyTestRunUpdate(id.ToString(), new
                 {
                     status = existingRun.Status,
@@ -89,7 +86,6 @@ namespace SeleniumDashboardApi.Controllers
                     date = existingRun.Date
                 });
 
-                // If test run is completed, send completion notification
                 if (existingRun.Status == "Completed" || existingRun.Status == "Failed")
                 {
                     await _notificationService.NotifyTestRunCompleted(id.ToString(), new
@@ -146,7 +142,6 @@ namespace SeleniumDashboardApi.Controllers
 
                 _logger.LogInformation($"Test run {id} deleted");
 
-                // Send SignalR notification for test run deletion
                 await _notificationService.NotifyTestRunUpdate(id.ToString(), new
                 {
                     status = "Deleted",

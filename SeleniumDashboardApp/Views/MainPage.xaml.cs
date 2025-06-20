@@ -29,13 +29,6 @@ public partial class MainPage : ContentPage
         BackgroundColor = Colors.White;
         Title = "Selenium Dashboard";
 
-        /*        viewModel.PropertyChanged += (s, e) =>
-                {
-                    if (e.PropertyName == nameof(viewModel.SelectedStatus))
-                        UpdateStatusDisplay(viewModel.SelectedStatus);
-                };*/
-
-        // Subscribe to SignalR notifications
         SetupSignalRNotifications();
     }
 
@@ -65,18 +58,15 @@ public partial class MainPage : ContentPage
         {
             System.Diagnostics.Debug.WriteLine("=== MAINPAGE APPEARING ===");
 
-            // Request notification permissions
             await _notificationService.RequestPermissionAsync();
             System.Diagnostics.Debug.WriteLine("Notification permission requested");
 
-            // Start SignalR connection
             if (!_signalRService.IsConnected)
             {
                 await _signalRService.StartAsync();
                 System.Diagnostics.Debug.WriteLine($"SignalR connection started. Connected: {_signalRService.IsConnected}");
             }
 
-            // Refresh data
             if (_viewModel != null)
             {
                 await _viewModel.RefreshTestRuns();
@@ -95,7 +85,6 @@ public partial class MainPage : ContentPage
 
         try
         {
-            // Don't disconnect SignalR when page disappears - keep it running for background notifications
             System.Diagnostics.Debug.WriteLine("MainPage disappearing - keeping SignalR connected for background notifications");
         }
         catch (Exception ex)
@@ -110,14 +99,12 @@ public partial class MainPage : ContentPage
         {
             System.Diagnostics.Debug.WriteLine($"=== NEW TEST RUN NOTIFICATION: {notification.ProjectName} ===");
 
-            // Show local notification
             await _notificationService.ShowNotificationAsync(
                 "🚀 Nieuwe Test Run",
                 $"{notification.ProjectName} is gestart",
                 notification.TestRunId
             );
 
-            // Refresh the UI data
             await MainThread.InvokeOnMainThreadAsync(async () =>
             {
                 if (_viewModel != null)
@@ -139,7 +126,6 @@ public partial class MainPage : ContentPage
         {
             System.Diagnostics.Debug.WriteLine($"=== TEST RUN UPDATE NOTIFICATION: {notification.TestRunId} - {notification.Status} ===");
 
-            // Only show notification for significant status changes
             if (notification.Status == "Running" || notification.Status == "Completed" || notification.Status == "Failed")
             {
                 string icon = notification.Status switch
@@ -157,7 +143,6 @@ public partial class MainPage : ContentPage
                 );
             }
 
-            // Refresh the UI data
             await MainThread.InvokeOnMainThreadAsync(async () =>
             {
                 if (_viewModel != null)
@@ -188,7 +173,6 @@ public partial class MainPage : ContentPage
                 notification.TestRunId
             );
 
-            // Refresh the UI data
             await MainThread.InvokeOnMainThreadAsync(async () =>
             {
                 if (_viewModel != null)
@@ -204,12 +188,6 @@ public partial class MainPage : ContentPage
         }
     }
 
-    /*    private void UpdateStatusDisplay(string status)
-        {
-            StatusDisplay.Text = string.IsNullOrWhiteSpace(status) ? string.Empty : $"Status: {status}";
-            StatusDisplay.IsVisible = !string.IsNullOrWhiteSpace(status);
-        }*/
-
     private void OnToggleSearchClicked(object sender, EventArgs e)
     {
         SearchEntryFrame.IsVisible = !SearchEntryFrame.IsVisible;
@@ -220,7 +198,6 @@ public partial class MainPage : ContentPage
         StatusPickerFrame.IsVisible = !StatusPickerFrame.IsVisible;
     }
 
-    // NIEUWE METHOD: Refresh button handler
     private async void OnRefreshClicked(object sender, EventArgs e)
     {
         if (_viewModel != null)
@@ -241,10 +218,8 @@ public partial class MainPage : ContentPage
         }
     }
 
-    // AANGEPASTE METHOD: Delete handler voor TapGestureRecognizer
     private async void OnDeleteTestRun(object sender, EventArgs e)
     {
-        // Nu moeten we het ID anders ophalen omdat we geen CommandParameter meer hebben
         if (sender is Frame frame && frame.BindingContext is TestRun testRun)
         {
             var id = testRun.Id;
@@ -255,13 +230,10 @@ public partial class MainPage : ContentPage
             {
                 System.Diagnostics.Debug.WriteLine($"=== DELETING TEST RUN {id} ===");
 
-                // First, remove from local database to give immediate UI feedback
                 await _database.DeleteTestRunByIdAsync(id);
 
-                // Update UI immediately
                 if (BindingContext is DashboardViewModel viewModel)
                 {
-                    // Remove from local collection first for immediate feedback
                     var testRunToRemove = viewModel.TestRuns.FirstOrDefault(t => t.Id == id);
                     if (testRunToRemove != null)
                     {
@@ -270,7 +242,6 @@ public partial class MainPage : ContentPage
                     }
                 }
 
-                // Then call backend (SignalR will handle notifying other clients)
                 var backendSuccess = await _apiService.DeleteTestRunAsync(id);
 
                 if (backendSuccess)
@@ -282,7 +253,6 @@ public partial class MainPage : ContentPage
                 {
                     System.Diagnostics.Debug.WriteLine($"Failed to delete test run {id} from backend");
 
-                    // If backend delete failed, refresh to restore correct state
                     if (BindingContext is DashboardViewModel vm)
                     {
                         await vm.RefreshTestRuns();
@@ -295,7 +265,6 @@ public partial class MainPage : ContentPage
             {
                 System.Diagnostics.Debug.WriteLine($"Error deleting test run {id}: {ex.Message}");
 
-                // On error, refresh to restore correct state
                 if (BindingContext is DashboardViewModel vm)
                 {
                     await vm.RefreshTestRuns();
@@ -306,7 +275,6 @@ public partial class MainPage : ContentPage
         }
     }
 
-    // Cleanup when page is destroyed
     ~MainPage()
     {
         try

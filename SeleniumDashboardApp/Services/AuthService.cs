@@ -108,7 +108,7 @@ namespace SeleniumDashboardApp.Services
                 {
                     Url = new Uri(authUrl),
                     CallbackUrl = new Uri(callbackScheme),
-                    PrefersEphemeralWebBrowserSession = true // This helps with clean sessions
+                    PrefersEphemeralWebBrowserSession = true
                 };
 
                 var result = await WebAuthenticator.Default.AuthenticateAsync(authRequest);
@@ -152,14 +152,13 @@ namespace SeleniumDashboardApp.Services
 
             try
             {
-                // 1. Clear API service authentication first
                 try
                 {
                     var serviceProvider = IPlatformApplication.Current?.Services;
                     var apiService = serviceProvider?.GetService<ApiService>();
                     if (apiService != null)
                     {
-                        apiService.SetToken(""); // Clear the token
+                        apiService.SetToken("");
                         System.Diagnostics.Debug.WriteLine("API Service token cleared");
                     }
                 }
@@ -168,17 +167,14 @@ namespace SeleniumDashboardApp.Services
                     System.Diagnostics.Debug.WriteLine($"Error clearing API service: {apiEx.Message}");
                 }
 
-                // 2. Clear local storage
                 Preferences.Remove("access_token");
                 Preferences.Remove("user_name");
                 Preferences.Remove("user_email");
 
-                // 3. Set logout flag
                 Preferences.Set("user_logged_out", "true");
 
                 System.Diagnostics.Debug.WriteLine("Local storage cleared and logout flag set");
 
-                // 4. Small delay to ensure cleanup
                 await Task.Delay(100);
 
                 System.Diagnostics.Debug.WriteLine("Logout completed successfully");
@@ -225,7 +221,6 @@ namespace SeleniumDashboardApp.Services
             {
                 System.Diagnostics.Debug.WriteLine("=== CLEARING MOBILE SESSION ===");
 
-                // For mobile, use WebAuthenticator to clear session
                 var logoutUrl = $"https://{_domain}/v2/logout" +
                                $"?client_id={Uri.EscapeDataString(_clientId)}" +
                                $"&returnTo={Uri.EscapeDataString(_callbackUrl)}";
@@ -237,7 +232,6 @@ namespace SeleniumDashboardApp.Services
                     PrefersEphemeralWebBrowserSession = true
                 };
 
-                // This will open browser, logout, and return
                 await WebAuthenticator.Default.AuthenticateAsync(logoutRequest);
 
                 System.Diagnostics.Debug.WriteLine("Mobile session cleared");
@@ -245,14 +239,11 @@ namespace SeleniumDashboardApp.Services
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Mobile logout error (expected): {ex.Message}");
-                // Logout "errors" are normal as the callback doesn't return auth data
             }
         }
 
-        // Keep all your existing helper methods (GenerateCodeVerifier, etc.)
         private async Task<string?> ExchangeCodeForTokenAsync(string authorizationCode, string codeVerifier, string? callbackUrl = null)
         {
-            // ... your existing token exchange code ...
             try
             {
                 var tokenUrl = $"https://{_domain}/oauth/token";

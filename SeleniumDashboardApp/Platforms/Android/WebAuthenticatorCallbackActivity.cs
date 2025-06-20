@@ -5,7 +5,6 @@ using Android.OS;
 
 namespace SeleniumDashboardApp.Platforms.Android;
 
-// Simpele callback activity
 [Activity(
     NoHistory = true,
     LaunchMode = LaunchMode.SingleTop,
@@ -15,12 +14,6 @@ public class WebAuthenticatorCallbackActivity : Microsoft.Maui.Authentication.We
 {
     protected override void OnCreate(Bundle? savedInstanceState)
     {
-        System.Diagnostics.Debug.WriteLine("=== CALLBACK ACTIVITY ONCREATE ===");
-        System.Diagnostics.Debug.WriteLine($"Intent: {Intent}");
-        System.Diagnostics.Debug.WriteLine($"Intent Data: {Intent?.Data}");
-        System.Diagnostics.Debug.WriteLine($"Intent DataString: {Intent?.DataString}");
-
         base.OnCreate(savedInstanceState);
-        System.Diagnostics.Debug.WriteLine("=== CALLBACK ACTIVITY COMPLETED ===");
     }
 }

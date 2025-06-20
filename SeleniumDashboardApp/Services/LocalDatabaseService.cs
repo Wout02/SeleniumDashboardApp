@@ -10,7 +10,6 @@ namespace SeleniumDashboardApp.Services
         public LocalDatabaseService(string dbPath)
         {
 #if DEBUG
-            // TIJDELIJK: Oude database verwijderen om schemafout te vermijden
             if (File.Exists(dbPath))
                 File.Delete(dbPath);
 #endif

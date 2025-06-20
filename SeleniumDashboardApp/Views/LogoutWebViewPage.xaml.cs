@@ -26,16 +26,14 @@ public partial class LogoutWebViewPage : ContentPage
 
         System.Diagnostics.Debug.WriteLine("=== LOGOUT WEBVIEW: Loading logout URL ===");
 
-        // Small delay to show loading, then load logout URL
         Dispatcher.StartTimer(TimeSpan.FromMilliseconds(1000), () =>
         {
             LogoutWebView.Source = _logoutUrl;
             LogoutWebView.IsVisible = true;
             LoadingStack.IsVisible = false;
-            return false; // Don't repeat
+            return false;
         });
 
-        // Auto-close after 8 seconds if logout doesn't complete
         Dispatcher.StartTimer(TimeSpan.FromSeconds(8), () =>
         {
             if (!_logoutCompleted)
@@ -51,7 +49,6 @@ public partial class LogoutWebViewPage : ContentPage
     {
         System.Diagnostics.Debug.WriteLine($"Logout WebView navigated to: {e.Url}");
 
-        // Check if we've reached the logout completion URL
         if (e.Url.Contains("logout-complete") ||
             e.Url.Contains("seleniumdashboardapp") ||
             !e.Url.Contains("auth0.com"))

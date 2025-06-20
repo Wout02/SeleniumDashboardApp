@@ -6,9 +6,9 @@ namespace SeleniumDashboardApp.Models
     public class LocalTestRun
     {
         [PrimaryKey, AutoIncrement]
-        public int LocalId { get; set; } // lokaal ID voor SQLite intern
+        public int LocalId { get; set; }
 
-        public int BackendId { get; set; } // echte ID van backend
+        public int BackendId { get; set; }
         public string ProjectName { get; set; }
         public string Status { get; set; }
         public DateTime Date { get; set; }

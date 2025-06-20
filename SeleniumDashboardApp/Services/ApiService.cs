@@ -12,7 +12,6 @@ namespace SeleniumDashboardApp.Services
         {
             _http = http;
 
-            // Set authentication header on initialization
             SetAuthenticationHeader();
         }
 
@@ -25,12 +24,10 @@ namespace SeleniumDashboardApp.Services
                 if (!string.IsNullOrEmpty(token))
                 {
                     _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                    System.Diagnostics.Debug.WriteLine($"[API] Authentication header set with token: {token.Substring(0, Math.Min(20, token.Length))}...");
                 }
                 else
                 {
                     _http.DefaultRequestHeaders.Authorization = null;
-                    System.Diagnostics.Debug.WriteLine("[API] No token found, authentication header cleared");
                 }
             }
             catch (Exception ex)
@@ -39,14 +36,12 @@ namespace SeleniumDashboardApp.Services
             }
         }
 
-        // Public method to refresh token after login
         public void RefreshAuthenticationToken()
         {
             System.Diagnostics.Debug.WriteLine("[API] Refreshing authentication token...");
             SetAuthenticationHeader();
         }
 
-        // Alternative: Set token directly
         public void SetToken(string token)
         {
             try
@@ -72,7 +67,6 @@ namespace SeleniumDashboardApp.Services
         {
             try
             {
-                // Ensure we have the latest token before making the call
                 SetAuthenticationHeader();
 
                 System.Diagnostics.Debug.WriteLine("[API] Getting test runs...");

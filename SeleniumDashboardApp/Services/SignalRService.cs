@@ -35,7 +35,6 @@ namespace SeleniumDashboardApp.Services
                     .WithAutomaticReconnect(new[] { TimeSpan.Zero, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(30) })
                     .Build();
 
-                // Event handlers voor notificaties
                 _connection.On<JsonElement>("NewTestRun", (testRunData) =>
                 {
                     try
@@ -115,7 +114,6 @@ namespace SeleniumDashboardApp.Services
                     }
                 });
 
-                // Connection event handlers
                 _connection.Reconnecting += (error) =>
                 {
                     System.Diagnostics.Debug.WriteLine($"SignalR reconnecting: {error?.Message}");
@@ -136,7 +134,6 @@ namespace SeleniumDashboardApp.Services
 
                 await _connection.StartAsync();
 
-                // Join all-users group
                 await _connection.InvokeAsync("JoinGroup", "all-users");
 
                 System.Diagnostics.Debug.WriteLine("=== SIGNALR: Connected successfully ===");
@@ -169,7 +166,6 @@ namespace SeleniumDashboardApp.Services
         }
     }
 
-    // Notification models
     public class TestRunNotification
     {
         public string TestRunId { get; set; } = "";

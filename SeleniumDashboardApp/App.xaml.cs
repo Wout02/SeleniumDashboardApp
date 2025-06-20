@@ -23,10 +23,8 @@ public partial class App : Application
                 var apiService = serviceProvider.GetService<ApiService>();
                 if (apiService != null)
                 {
-                    // Set the new token directly
                     apiService.SetToken(newToken);
 
-                    // Test if the API service works with the new token
                     try
                     {
                         System.Diagnostics.Debug.WriteLine("Testing API service with new token...");
@@ -60,7 +58,6 @@ public partial class App : Application
     {
         var window = new Window();
 
-        // Zet tijdelijke laadscherm
         window.Page = new ContentPage
         {
             Content = new VerticalStackLayout
@@ -94,37 +91,30 @@ public partial class App : Application
                 var authService = new AuthService();
                 string? token = Preferences.Get("access_token", null);
 
-                // CHECK: Is de gebruiker recent uitgelogd?
                 var wasLoggedOut = Preferences.Get("user_logged_out", "false");
 
                 System.Diagnostics.Debug.WriteLine($"Bestaande token gevonden: {!string.IsNullOrEmpty(token)}");
                 System.Diagnostics.Debug.WriteLine($"Was logged out: {wasLoggedOut}");
 
-                // Als gebruiker recent uitgelogd is, start direct nieuwe login
                 if (wasLoggedOut == "true")
                 {
                     System.Diagnostics.Debug.WriteLine("User was logged out - starting direct login");
 
-                    // Clear the logout flag
                     Preferences.Remove("user_logged_out");
 
-                    // Start direct login zonder prompt
                     await StartDirectLogin(window, authService);
                     return;
                 }
 
-                // Login starten als er geen token is
                 if (string.IsNullOrEmpty(token))
                 {
                     System.Diagnostics.Debug.WriteLine("Geen token gevonden, starten direct login flow...");
 
-                    // Start direct login zonder prompt
                     await StartDirectLogin(window, authService);
                     return;
                 }
                 else
                 {
-                    // Token is al beschikbaar - refresh API service
                     System.Diagnostics.Debug.WriteLine("Token beschikbaar, refreshing API service...");
                     await RefreshApiServiceAfterLogin(token);
 
@@ -162,7 +152,6 @@ public partial class App : Application
         {
             System.Diagnostics.Debug.WriteLine("=== STARTING DIRECT LOGIN ===");
 
-            // Show loading screen with login message
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 window.Page = new ContentPage
@@ -196,7 +185,7 @@ public partial class App : Application
 #else
                             new Label
                             {
-                                Text = "Volg de instructies in je browser",
+                                Text = "",
                                 FontSize = 12,
                                 TextColor = Colors.Gray,
                                 HorizontalOptions = LayoutOptions.Center
@@ -207,7 +196,6 @@ public partial class App : Application
                 };
             });
 
-            // Start Auth0 login direct
             var token = await authService.LoginAsync();
 
             if (!string.IsNullOrEmpty(token))
@@ -215,7 +203,6 @@ public partial class App : Application
                 Preferences.Set("access_token", token);
                 System.Diagnostics.Debug.WriteLine("Direct login successful, refreshing API service...");
 
-                // Refresh API service with new token
                 await RefreshApiServiceAfterLogin(token);
 
                 MainThread.BeginInvokeOnMainThread(() =>
