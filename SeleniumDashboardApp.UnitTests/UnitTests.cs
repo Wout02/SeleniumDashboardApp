@@ -38,7 +38,6 @@ namespace SeleniumDashboardApp.UnitTests
         [Test]
         public void Test2_FilterLogic_ByStatus()
         {
-            // Arrange
             var testRuns = new List<LocalTestRun>
             {
                 new LocalTestRun { BackendId = 1, ProjectName = "App Tests", Status = "Passed" },
@@ -47,11 +46,9 @@ namespace SeleniumDashboardApp.UnitTests
                 new LocalTestRun { BackendId = 4, ProjectName = "UI Tests", Status = "Failed" }
             };
 
-            // Act - Filter alleen passed tests
             var passedRuns = testRuns.Where(r => r.Status == "Passed").ToList();
             var failedRuns = testRuns.Where(r => r.Status == "Failed").ToList();
 
-            // Assert
             Assert.That(passedRuns.Count, Is.EqualTo(2), "Should have 2 passed tests");
             Assert.That(failedRuns.Count, Is.EqualTo(2), "Should have 2 failed tests");
             Assert.That(passedRuns.All(r => r.Status == "Passed"), Is.True, "All filtered should be Passed");
@@ -63,23 +60,20 @@ namespace SeleniumDashboardApp.UnitTests
         [Test]
         public void Test3_LogParsing_ForCharts()
         {
-            // Arrange
             var logOutput = @"🚀 Test execution started
-✔ Setup completed (25ms)
-✔ Login functionality test (150ms)
-× Navigation test failed (80ms)
-✔ Data validation test (45ms)
-× Form submission failed (120ms)
-✅ Test execution completed";
+                            ✔ Setup completed (25ms)
+                            ✔ Login functionality test (150ms)
+                            × Navigation test failed (80ms)
+                            ✔ Data validation test (45ms)
+                            × Form submission failed (120ms)
+                            ✅ Test execution completed";
 
-            // Act - Parse zoals je charts doen
             var lines = logOutput.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
             var passedCount = lines.Count(l => l.TrimStart().StartsWith("✔"));
             var failedCount = lines.Count(l => l.TrimStart().StartsWith("×"));
             var timedTests = lines.Count(l => l.Contains("ms)"));
 
-            // Extract timing data (zoals TestRunDetailViewModel doet)
             var timings = new List<int>();
             foreach (var line in lines.Where(l => l.Contains("ms)")))
             {
@@ -94,8 +88,6 @@ namespace SeleniumDashboardApp.UnitTests
                     }
                 }
             }
-
-            // Assert
             Assert.That(passedCount, Is.EqualTo(3), "Should detect 3 passed tests");
             Assert.That(failedCount, Is.EqualTo(2), "Should detect 2 failed tests");
             Assert.That(timedTests, Is.EqualTo(5), "Should detect 5 timed operations");
@@ -103,8 +95,6 @@ namespace SeleniumDashboardApp.UnitTests
             Assert.That(timings.Sum(), Is.EqualTo(420), "Total time should be 420ms (25+150+80+45+120)");
             Assert.That(timings.Max(), Is.EqualTo(150), "Longest operation should be 150ms");
             Assert.That(timings.Min(), Is.EqualTo(25), "Shortest operation should be 25ms");
-
-            Console.WriteLine("✅ Log parsing for charts test passed");
         }
     }
 }

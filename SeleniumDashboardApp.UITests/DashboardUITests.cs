@@ -78,14 +78,14 @@ namespace SeleniumDashboardApp.UITests
                     date = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
                     summary = "Testing dashboard connection from MAUI app tests",
                     logOutput = @"🚀 Simple connection test started
-✔ Test setup completed (15ms)
-✔ HttpClient initialized (5ms)
-✔ Dashboard API connection test (120ms)
-✔ JSON serialization test (8ms)
-× Failed validation test (25ms)
-✔ Response parsing test (12ms)
-✔ All basic tests completed (200ms)
-✅ Testing dashboard API connectivity"
+                                ✔ Test setup completed (15ms)
+                                ✔ HttpClient initialized (5ms)
+                                ✔ Dashboard API connection test (120ms)
+                                ✔ JSON serialization test (8ms)
+                                × Failed validation test (25ms)
+                                ✔ Response parsing test (12ms)
+                                ✔ All basic tests completed (200ms)
+                                ✅ Testing dashboard API connectivity"
                 };
 
                 var json = JsonConvert.SerializeObject(testData);
@@ -119,16 +119,16 @@ namespace SeleniumDashboardApp.UITests
                             date = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
                             summary = "Dashboard connection test - Passed",
                             logOutput = @"🚀 Simple connection test started
-✔ Test setup completed (15ms)
-✔ HttpClient initialized (5ms)
-✔ Dashboard API connection test (120ms)
-✔ JSON serialization test (8ms)
-× Failed validation test (25ms)
-✔ Response parsing test (12ms)
-✔ Test run created successfully (180ms)
-✔ Test run updated successfully (45ms)
-✔ All basic tests completed (410ms)
-✅ Connection test completed successfully!"
+                                        ✔ Test setup completed (15ms)
+                                        ✔ HttpClient initialized (5ms)
+                                        ✔ Dashboard API connection test (120ms)
+                                        ✔ JSON serialization test (8ms)
+                                        × Failed validation test (25ms)
+                                        ✔ Response parsing test (12ms)
+                                        ✔ Test run created successfully (180ms)
+                                        ✔ Test run updated successfully (45ms)
+                                        ✔ All basic tests completed (410ms)
+                                        ✅ Connection test completed successfully!"
                         };
 
                         var updateJson = JsonConvert.SerializeObject(updateData);
