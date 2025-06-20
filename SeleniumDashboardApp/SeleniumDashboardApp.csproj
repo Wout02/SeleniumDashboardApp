@@ -23,6 +23,8 @@
 		<!-- Display name -->
 		<ApplicationTitle>SeleniumDashboardApp</ApplicationTitle>
 
+		<AndroidLinkMode>None</AndroidLinkMode>
+
 		<!-- App Identifier -->
 		<ApplicationId>com.companyname.seleniumdashboardapp</ApplicationId>
 

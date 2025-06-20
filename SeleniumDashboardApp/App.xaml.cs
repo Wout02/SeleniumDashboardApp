@@ -11,6 +11,51 @@ public partial class App : Application
         InitializeComponent();
     }
 
+    private async Task RefreshApiServiceAfterLogin(string newToken)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine("=== REFRESHING API SERVICE WITH NEW TOKEN ===");
+
+            var serviceProvider = IPlatformApplication.Current?.Services;
+            if (serviceProvider != null)
+            {
+                var apiService = serviceProvider.GetService<ApiService>();
+                if (apiService != null)
+                {
+                    // Set the new token directly
+                    apiService.SetToken(newToken);
+
+                    // Test if the API service works with the new token
+                    try
+                    {
+                        System.Diagnostics.Debug.WriteLine("Testing API service with new token...");
+                        var testResult = await apiService.GetTestRunsAsync();
+                        System.Diagnostics.Debug.WriteLine($"API test successful: {testResult?.Count ?? 0} runs");
+                    }
+                    catch (Exception apiEx)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"API test failed: {apiEx.Message}");
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("ERROR: Could not get ApiService from service provider");
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("ERROR: Service provider is null");
+            }
+
+            System.Diagnostics.Debug.WriteLine("=== API SERVICE REFRESH COMPLETED ===");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error refreshing API service: {ex.Message}");
+        }
+    }
+
     protected override Window CreateWindow(IActivationState? activationState)
     {
         var window = new Window();
@@ -55,75 +100,40 @@ public partial class App : Application
                 System.Diagnostics.Debug.WriteLine($"Bestaande token gevonden: {!string.IsNullOrEmpty(token)}");
                 System.Diagnostics.Debug.WriteLine($"Was logged out: {wasLoggedOut}");
 
-                // Als gebruiker recent uitgelogd is, toon login prompt in plaats van auto-login
+                // Als gebruiker recent uitgelogd is, start direct nieuwe login
                 if (wasLoggedOut == "true")
                 {
-                    System.Diagnostics.Debug.WriteLine("User was logged out - showing login prompt");
+                    System.Diagnostics.Debug.WriteLine("User was logged out - starting direct login");
 
                     // Clear the logout flag
                     Preferences.Remove("user_logged_out");
 
-                    MainThread.BeginInvokeOnMainThread(() =>
-                    {
-                        ShowLoginPrompt(window);
-                    });
+                    // Start direct login zonder prompt
+                    await StartDirectLogin(window, authService);
                     return;
                 }
 
                 // Login starten als er geen token is
                 if (string.IsNullOrEmpty(token))
                 {
-                    System.Diagnostics.Debug.WriteLine("Geen token gevonden, starten login flow...");
+                    System.Diagnostics.Debug.WriteLine("Geen token gevonden, starten direct login flow...");
 
-                    try
-                    {
-                        // Increased timeout to 5 minutes for login
-                        using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
-
-                        System.Diagnostics.Debug.WriteLine("Starting login with 5 minute timeout...");
-                        token = await authService.LoginAsync();
-
-                        System.Diagnostics.Debug.WriteLine($"Login completed, token received: {!string.IsNullOrEmpty(token)}");
-
-                        if (!string.IsNullOrEmpty(token))
-                        {
-                            Preferences.Set("access_token", token);
-                            System.Diagnostics.Debug.WriteLine("Token opgeslagen, navigeren naar AppShell");
-
-                            MainThread.BeginInvokeOnMainThread(() =>
-                            {
-                                window.Page = new AppShell();
-                            });
-                            return;
-                        }
-                        else
-                        {
-                            System.Diagnostics.Debug.WriteLine("Login geannuleerd of mislukt");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"Login exception: {ex.GetType().Name}: {ex.Message}");
-                        System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-                    }
+                    // Start direct login zonder prompt
+                    await StartDirectLogin(window, authService);
+                    return;
                 }
                 else
                 {
-                    // Token is al beschikbaar
-                    System.Diagnostics.Debug.WriteLine("Token beschikbaar, navigeren naar AppShell");
+                    // Token is al beschikbaar - refresh API service
+                    System.Diagnostics.Debug.WriteLine("Token beschikbaar, refreshing API service...");
+                    await RefreshApiServiceAfterLogin(token);
+
                     MainThread.BeginInvokeOnMainThread(() =>
                     {
                         window.Page = new AppShell();
                     });
                     return;
                 }
-
-                // Als we hier komen: login faalde of werd geannuleerd
-                System.Diagnostics.Debug.WriteLine("Tonen van login prompt");
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    ShowLoginPrompt(window);
-                });
             }
             catch (Exception ex)
             {
@@ -146,114 +156,67 @@ public partial class App : Application
         return window;
     }
 
-    private void ShowLoginPrompt(Window window)
-    {
-        window.Page = new ContentPage
-        {
-            Content = new VerticalStackLayout
-            {
-                VerticalOptions = LayoutOptions.Center,
-                HorizontalOptions = LayoutOptions.Center,
-                Spacing = 30,
-                Padding = 40,
-                Children =
-                {
-                    new Label
-                    {
-                        Text = "🔐 Selenium Dashboard",
-                        FontSize = 32,
-                        FontAttributes = FontAttributes.Bold,
-                        HorizontalOptions = LayoutOptions.Center,
-                        TextColor = Colors.Blue
-                    },
-                    new Label
-                    {
-                        Text = "Welkom! Log in om je test resultaten te bekijken.",
-                        FontSize = 16,
-                        HorizontalOptions = LayoutOptions.Center,
-                        HorizontalTextAlignment = TextAlignment.Center,
-                        TextColor = Colors.Gray
-                    },
-#if WINDOWS
-                    new Label
-                    {
-                        Text = "Windows Demo Mode: Automatische toegang",
-                        FontSize = 14,
-                        HorizontalOptions = LayoutOptions.Center,
-                        HorizontalTextAlignment = TextAlignment.Center,
-                        TextColor = Colors.Orange,
-                        FontAttributes = FontAttributes.Italic
-                    },
-#endif
-                    new Button
-                    {
-                        Text = "🚀 Inloggen",
-                        FontSize = 18,
-                        BackgroundColor = Colors.Blue,
-                        TextColor = Colors.White,
-                        CornerRadius = 10,
-                        Padding = new Thickness(30, 15),
-                        Command = new Command(async () => await StartLoginFromPrompt(window))
-                    }
-                }
-            }
-        };
-    }
-
-    private async Task StartLoginFromPrompt(Window window)
+    private async Task StartDirectLogin(Window window, AuthService authService)
     {
         try
         {
-            System.Diagnostics.Debug.WriteLine("=== STARTING LOGIN FROM PROMPT ===");
+            System.Diagnostics.Debug.WriteLine("=== STARTING DIRECT LOGIN ===");
 
-            // Show loading
-            window.Page = new ContentPage
+            // Show loading screen with login message
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                Content = new VerticalStackLayout
+                window.Page = new ContentPage
                 {
-                    VerticalOptions = LayoutOptions.Center,
-                    HorizontalOptions = LayoutOptions.Center,
-                    Spacing = 20,
-                    Children =
+                    Content = new VerticalStackLayout
                     {
-                        new ActivityIndicator
+                        VerticalOptions = LayoutOptions.Center,
+                        HorizontalOptions = LayoutOptions.Center,
+                        Spacing = 20,
+                        Children =
                         {
-                            IsRunning = true,
-                            Color = Colors.Blue
-                        },
-                        new Label
-                        {
-                            Text = "Inloggen...",
-                            HorizontalOptions = LayoutOptions.Center
-                        },
+                            new ActivityIndicator
+                            {
+                                IsRunning = true,
+                                Color = Colors.Blue
+                            },
+                            new Label
+                            {
+                                Text = "Inloggen...",
+                                HorizontalOptions = LayoutOptions.Center,
+                                FontSize = 18
+                            },
 #if WINDOWS
-                        new Label
-                        {
-                            Text = "Windows: Automatische demo login",
-                            FontSize = 12,
-                            TextColor = Colors.Gray,
-                            HorizontalOptions = LayoutOptions.Center
-                        }
+                            new Label
+                            {
+                                Text = "Windows: Automatische demo login",
+                                FontSize = 12,
+                                TextColor = Colors.Gray,
+                                HorizontalOptions = LayoutOptions.Center
+                            }
 #else
-                        new Label
-                        {
-                            Text = "Volg de instructies in je browser",
-                            FontSize = 12,
-                            TextColor = Colors.Gray,
-                            HorizontalOptions = LayoutOptions.Center
-                        }
+                            new Label
+                            {
+                                Text = "Volg de instructies in je browser",
+                                FontSize = 12,
+                                TextColor = Colors.Gray,
+                                HorizontalOptions = LayoutOptions.Center
+                            }
 #endif
+                        }
                     }
-                }
-            };
+                };
+            });
 
-            var authService = new AuthService();
+            // Start Auth0 login direct
             var token = await authService.LoginAsync();
 
             if (!string.IsNullOrEmpty(token))
             {
                 Preferences.Set("access_token", token);
-                System.Diagnostics.Debug.WriteLine("Login from prompt successful");
+                System.Diagnostics.Debug.WriteLine("Direct login successful, refreshing API service...");
+
+                // Refresh API service with new token
+                await RefreshApiServiceAfterLogin(token);
 
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
@@ -262,23 +225,69 @@ public partial class App : Application
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("Login from prompt failed");
+                System.Diagnostics.Debug.WriteLine("Direct login failed");
 
-                MainThread.BeginInvokeOnMainThread(async () =>
+                MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    await Application.Current.MainPage.DisplayAlert("Fout", "Login mislukt", "OK");
-                    ShowLoginPrompt(window);
+                    window.Page = new ContentPage
+                    {
+                        Content = new VerticalStackLayout
+                        {
+                            VerticalOptions = LayoutOptions.Center,
+                            HorizontalOptions = LayoutOptions.Center,
+                            Spacing = 20,
+                            Children =
+                            {
+                                new Label
+                                {
+                                    Text = "❌ Login mislukt",
+                                    FontSize = 18,
+                                    HorizontalOptions = LayoutOptions.Center,
+                                    TextColor = Colors.Red
+                                },
+                                new Label
+                                {
+                                    Text = "Probeer het opnieuw door de app te herstarten",
+                                    HorizontalOptions = LayoutOptions.Center,
+                                    HorizontalTextAlignment = TextAlignment.Center
+                                }
+                            }
+                        }
+                    };
                 });
             }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Login from prompt error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"Direct login error: {ex.Message}");
 
-            MainThread.BeginInvokeOnMainThread(async () =>
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                await Application.Current.MainPage.DisplayAlert("Fout", $"Login error: {ex.Message}", "OK");
-                ShowLoginPrompt(window);
+                window.Page = new ContentPage
+                {
+                    Content = new VerticalStackLayout
+                    {
+                        VerticalOptions = LayoutOptions.Center,
+                        HorizontalOptions = LayoutOptions.Center,
+                        Spacing = 20,
+                        Children =
+                        {
+                            new Label
+                            {
+                                Text = "❌ Login fout",
+                                FontSize = 18,
+                                HorizontalOptions = LayoutOptions.Center,
+                                TextColor = Colors.Red
+                            },
+                            new Label
+                            {
+                                Text = ex.Message,
+                                HorizontalOptions = LayoutOptions.Center,
+                                HorizontalTextAlignment = TextAlignment.Center
+                            }
+                        }
+                    }
+                };
             });
         }
     }

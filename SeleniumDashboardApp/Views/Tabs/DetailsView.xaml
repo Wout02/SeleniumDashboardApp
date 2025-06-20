@@ -16,29 +16,12 @@
                    TextColor="#333"
                    Margin="0,0,0,10" />
 
-            <!-- Detailkaart met MainPage styling -->
+            <!-- Detailkaart - SIMPEL -->
             <Frame CornerRadius="8"
                    HasShadow="False"
                    BackgroundColor="White"
                    BorderColor="#E0E0E0"
                    Padding="20">
-
-                <VisualStateManager.VisualStateGroups>
-                    <VisualStateGroup x:Name="CommonStates">
-                        <VisualState x:Name="PointerOver">
-                            <VisualState.Setters>
-                                <Setter Property="BackgroundColor" Value="#F8F9FA" />
-                                <Setter Property="BorderColor" Value="#007ACC" />
-                            </VisualState.Setters>
-                        </VisualState>
-                        <VisualState x:Name="Normal">
-                            <VisualState.Setters>
-                                <Setter Property="BackgroundColor" Value="White" />
-                                <Setter Property="BorderColor" Value="#E0E0E0" />
-                            </VisualState.Setters>
-                        </VisualState>
-                    </VisualStateGroup>
-                </VisualStateManager.VisualStateGroups>
 
                 <VerticalStackLayout Spacing="15">
 

@@ -231,13 +231,10 @@ public partial class MainPage : ContentPage
 
     private async void OnTestRunTapped(object sender, EventArgs e)
     {
-        Console.WriteLine("TestRun geklikt");
-
         if (sender is Frame frame && frame.BindingContext is TestRun selectedRun)
         {
-            Console.WriteLine($"Geselecteerde run: {selectedRun.Id}");
-
-            var viewModel = _serviceProvider.GetService<TestRunDetailViewModel>();
+            var apiService = _serviceProvider?.GetService<ApiService>() ?? _apiService;
+            var viewModel = new TestRunDetailViewModel(apiService);
 
             var page = new TestRunDetailPage(viewModel, selectedRun.Id);
             await Navigation.PushAsync(page, animated: true);

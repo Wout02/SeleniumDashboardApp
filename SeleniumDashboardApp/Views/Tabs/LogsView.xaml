@@ -31,29 +31,12 @@
             </VerticalStackLayout>
         </Frame>
 
-        <!-- Logoutput in witte frame -->
+        <!-- Logoutput in witte frame - SIMPEL -->
         <Frame BackgroundColor="White"
                CornerRadius="8"
                Padding="0"
                HasShadow="False"
                BorderColor="#E0E0E0">
-
-            <VisualStateManager.VisualStateGroups>
-                <VisualStateGroup x:Name="CommonStates">
-                    <VisualState x:Name="PointerOver">
-                        <VisualState.Setters>
-                            <Setter Property="BackgroundColor" Value="#F8F9FA" />
-                            <Setter Property="BorderColor" Value="#007ACC" />
-                        </VisualState.Setters>
-                    </VisualState>
-                    <VisualState x:Name="Normal">
-                        <VisualState.Setters>
-                            <Setter Property="BackgroundColor" Value="White" />
-                            <Setter Property="BorderColor" Value="#E0E0E0" />
-                        </VisualState.Setters>
-                    </VisualState>
-                </VisualStateGroup>
-            </VisualStateManager.VisualStateGroups>
 
             <ScrollView>
                 <Frame BackgroundColor="#F8F9FA"
@@ -73,7 +56,7 @@
             </ScrollView>
         </Frame>
 
-        <!-- Knoppen in witte frame -->
+        <!-- Knoppen in witte frame - SIMPEL -->
         <Frame BackgroundColor="White"
                CornerRadius="8"
                Padding="20"
@@ -90,30 +73,7 @@
                         BackgroundColor="Transparent"
                         TextColor="Black"
                         BorderColor="#DDD"
-                        BorderWidth="1">
-                    <VisualStateManager.VisualStateGroups>
-                        <VisualStateGroup x:Name="CommonStates">
-                            <VisualState x:Name="PointerOver">
-                                <VisualState.Setters>
-                                    <Setter Property="BackgroundColor" Value="#F8F9FA" />
-                                    <Setter Property="Scale" Value="1.05" />
-                                </VisualState.Setters>
-                            </VisualState>
-                            <VisualState x:Name="Normal">
-                                <VisualState.Setters>
-                                    <Setter Property="BackgroundColor" Value="Transparent" />
-                                    <Setter Property="Scale" Value="1.0" />
-                                </VisualState.Setters>
-                            </VisualState>
-                            <VisualState x:Name="Pressed">
-                                <VisualState.Setters>
-                                    <Setter Property="BackgroundColor" Value="#E9ECEF" />
-                                    <Setter Property="Scale" Value="0.95" />
-                                </VisualState.Setters>
-                            </VisualState>
-                        </VisualStateGroup>
-                    </VisualStateManager.VisualStateGroups>
-                </Button>
+                        BorderWidth="1" />
 
                 <Button Text="⬇️"
                         WidthRequest="44"
@@ -124,31 +84,9 @@
                         BackgroundColor="Transparent"
                         TextColor="Black"
                         BorderColor="#DDD"
-                        BorderWidth="1">
-                    <VisualStateManager.VisualStateGroups>
-                        <VisualStateGroup x:Name="CommonStates">
-                            <VisualState x:Name="PointerOver">
-                                <VisualState.Setters>
-                                    <Setter Property="BackgroundColor" Value="#F8F9FA" />
-                                    <Setter Property="Scale" Value="1.05" />
-                                </VisualState.Setters>
-                            </VisualState>
-                            <VisualState x:Name="Normal">
-                                <VisualState.Setters>
-                                    <Setter Property="BackgroundColor" Value="Transparent" />
-                                    <Setter Property="Scale" Value="1.0" />
-                                </VisualState.Setters>
-                            </VisualState>
-                            <VisualState x:Name="Pressed">
-                                <VisualState.Setters>
-                                    <Setter Property="BackgroundColor" Value="#E9ECEF" />
-                                    <Setter Property="Scale" Value="0.95" />
-                                </VisualState.Setters>
-                            </VisualState>
-                        </VisualStateGroup>
-                    </VisualStateManager.VisualStateGroups>
-                </Button>
+                        BorderWidth="1" />
             </HorizontalStackLayout>
         </Frame>
+
     </VerticalStackLayout>
 </ContentView>

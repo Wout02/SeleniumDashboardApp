@@ -152,15 +152,34 @@ namespace SeleniumDashboardApp.Services
 
             try
             {
-                // 1. Clear local storage first
+                // 1. Clear API service authentication first
+                try
+                {
+                    var serviceProvider = IPlatformApplication.Current?.Services;
+                    var apiService = serviceProvider?.GetService<ApiService>();
+                    if (apiService != null)
+                    {
+                        apiService.SetToken(""); // Clear the token
+                        System.Diagnostics.Debug.WriteLine("API Service token cleared");
+                    }
+                }
+                catch (Exception apiEx)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error clearing API service: {apiEx.Message}");
+                }
+
+                // 2. Clear local storage
                 Preferences.Remove("access_token");
                 Preferences.Remove("user_name");
                 Preferences.Remove("user_email");
 
-                System.Diagnostics.Debug.WriteLine("Local storage cleared");
+                // 3. Set logout flag
+                Preferences.Set("user_logged_out", "true");
 
-                // 2. Simple cleanup without complex WebView clearing
-                await Task.Delay(100); // Small delay to ensure cleanup
+                System.Diagnostics.Debug.WriteLine("Local storage cleared and logout flag set");
+
+                // 4. Small delay to ensure cleanup
+                await Task.Delay(100);
 
                 System.Diagnostics.Debug.WriteLine("Logout completed successfully");
             }

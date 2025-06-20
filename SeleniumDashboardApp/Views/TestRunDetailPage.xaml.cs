@@ -11,57 +11,105 @@ public partial class TestRunDetailPage : ContentPage
 
     public TestRunDetailPage(TestRunDetailViewModel viewModel, int testRunId)
     {
-        InitializeComponent();
-        _viewModel = viewModel;
-        BindingContext = _viewModel;
-
-        // Testrun + logs laden via API
-        Console.WriteLine($"[DEBUG] TestRunDetailPage constructor - ID: {testRunId}");
-        _ = _viewModel.LoadTestRunById(testRunId);
-
-        // Tabs instellen
-        _templateSelector = new TabTemplateSelector
+        try
         {
-            DetailsTemplate = new DataTemplate(typeof(DetailsView)),
-            LogsTemplate = new DataTemplate(typeof(LogsView)),
-            ChartsTemplate = new DataTemplate(typeof(ChartsView))
-        };
+            Console.WriteLine($"[DEBUG] TestRunDetailPage constructor START - ID: {testRunId}");
 
-        // Reageer op tabwijziging
-        _viewModel.PropertyChanged += (s, e) =>
-        {
-            if (e.PropertyName == nameof(_viewModel.SelectedTab))
+            // Initialize component first
+            InitializeComponent();
+
+            Console.WriteLine($"[DEBUG] InitializeComponent completed");
+
+            // Null check
+            if (viewModel == null)
+                throw new ArgumentNullException(nameof(viewModel), "ViewModel cannot be null");
+
+            _viewModel = viewModel;
+            BindingContext = _viewModel;
+
+            Console.WriteLine($"[DEBUG] ViewModel bound");
+
+            // Load test run data in background to avoid blocking UI
+            _ = Task.Run(async () =>
             {
-                UpdateTabContent();
-            }
-        };
+                try
+                {
+                    await _viewModel.LoadTestRunById(testRunId);
+                    Console.WriteLine($"[DEBUG] Test run data loaded for ID: {testRunId}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[ERROR] Failed to load test run data: {ex.Message}");
+                }
+            });
 
-        // Initieel content instellen
-        UpdateTabContent();
+            // Setup tabs
+            _templateSelector = new TabTemplateSelector
+            {
+                DetailsTemplate = new DataTemplate(typeof(DetailsView)),
+                LogsTemplate = new DataTemplate(typeof(LogsView)),
+                ChartsTemplate = new DataTemplate(typeof(ChartsView))
+            };
+
+            Console.WriteLine($"[DEBUG] Tab templates created");
+
+            // Handle tab changes
+            _viewModel.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(_viewModel.SelectedTab))
+                {
+                    UpdateTabContent();
+                }
+            };
+
+            // Set initial content
+            UpdateTabContent();
+
+            Console.WriteLine($"[DEBUG] TestRunDetailPage constructor COMPLETED - ID: {testRunId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR] TestRunDetailPage constructor failed: {ex.Message}");
+            Console.WriteLine($"[ERROR] Stack trace: {ex.StackTrace}");
+            throw; // Re-throw to let caller handle
+        }
     }
 
     private void UpdateTabContent()
     {
-        Console.WriteLine($"[TAB] Gewijzigd naar: {_viewModel.SelectedTab}");
+        try
+        {
+            Console.WriteLine($"[TAB] Updating content for: {_viewModel.SelectedTab}");
 
-        var template = _templateSelector.SelectTemplate(_viewModel.SelectedTab, this);
-        var content = template.CreateContent();
+            var template = _templateSelector.SelectTemplate(_viewModel.SelectedTab, this);
+            if (template == null)
+            {
+                Console.WriteLine($"[TAB ERROR] No template found for: {_viewModel.SelectedTab}");
+                return;
+            }
 
-        if (content is View view)
-        {
-            Console.WriteLine($"[TAB] View geladen: {view.GetType().Name}");
-            view.BindingContext = _viewModel;
-            TabContentView.Content = view;
+            var content = template.CreateContent();
+
+            if (content is View view)
+            {
+                Console.WriteLine($"[TAB] View loaded: {view.GetType().Name}");
+                view.BindingContext = _viewModel;
+                TabContentView.Content = view;
+            }
+            else if (content is ViewCell cell && cell.View is View innerView)
+            {
+                Console.WriteLine($"[TAB] ViewCell loaded: {innerView.GetType().Name}");
+                innerView.BindingContext = _viewModel;
+                TabContentView.Content = innerView;
+            }
+            else
+            {
+                Console.WriteLine($"[TAB ERROR] Invalid content type: {content?.GetType().Name ?? "null"}");
+            }
         }
-        else if (content is ViewCell cell && cell.View is View innerView)
+        catch (Exception ex)
         {
-            Console.WriteLine($"[TAB] ViewCell geladen: {innerView.GetType().Name}");
-            innerView.BindingContext = _viewModel;
-            TabContentView.Content = innerView;
-        }
-        else
-        {
-            Console.WriteLine($"[TAB] Geen geldige content geladen.");
+            Console.WriteLine($"[TAB ERROR] UpdateTabContent failed: {ex.Message}");
         }
     }
 }
