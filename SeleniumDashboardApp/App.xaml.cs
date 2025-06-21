@@ -58,7 +58,8 @@ public partial class App : Application
     {
         var window = new Window();
 
-        window.Page = new ContentPage
+        // Create a temporary loading page
+        var loadingPage = new ContentPage
         {
             Content = new VerticalStackLayout
             {
@@ -82,119 +83,120 @@ public partial class App : Application
             }
         };
 
-        _ = Task.Run(async () =>
+        window.Page = loadingPage;
+
+        // Execute startup on main thread with delay
+        MainThread.BeginInvokeOnMainThread(async () =>
         {
-            try
-            {
-                System.Diagnostics.Debug.WriteLine("=== APP STARTUP: Begin ===");
-
-                var authService = new AuthService();
-                string? token = Preferences.Get("access_token", null);
-
-                var wasLoggedOut = Preferences.Get("user_logged_out", "false");
-
-                System.Diagnostics.Debug.WriteLine($"Bestaande token gevonden: {!string.IsNullOrEmpty(token)}");
-                System.Diagnostics.Debug.WriteLine($"Was logged out: {wasLoggedOut}");
-
-                if (wasLoggedOut == "true")
-                {
-                    System.Diagnostics.Debug.WriteLine("User was logged out - starting direct login");
-
-                    Preferences.Remove("user_logged_out");
-
-                    await StartDirectLogin(window, authService);
-                    return;
-                }
-
-                if (string.IsNullOrEmpty(token))
-                {
-                    System.Diagnostics.Debug.WriteLine("Geen token gevonden, starten direct login flow...");
-
-                    await StartDirectLogin(window, authService);
-                    return;
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine("Token beschikbaar, refreshing API service...");
-                    await RefreshApiServiceAfterLogin(token);
-
-                    MainThread.BeginInvokeOnMainThread(() =>
-                    {
-                        window.Page = new AppShell();
-                    });
-                    return;
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"=== APP STARTUP FOUT: {ex} ===");
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    window.Page = new ContentPage
-                    {
-                        Content = new Label
-                        {
-                            Text = $"App startup fout: {ex.Message}",
-                            VerticalOptions = LayoutOptions.Center,
-                            HorizontalOptions = LayoutOptions.Center
-                        }
-                    };
-                });
-            }
+            // Small delay to ensure window is fully initialized
+            await Task.Delay(100);
+            await StartupAsync(window);
         });
 
         return window;
+    }
+
+    private async Task StartupAsync(Window window)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine("=== APP STARTUP: Begin (Main Thread) ===");
+
+            var authService = new AuthService();
+            string? token = Preferences.Get("access_token", null);
+
+            var wasLoggedOut = Preferences.Get("user_logged_out", "false");
+
+            System.Diagnostics.Debug.WriteLine($"Bestaande token gevonden: {!string.IsNullOrEmpty(token)}");
+            System.Diagnostics.Debug.WriteLine($"Was logged out: {wasLoggedOut}");
+
+            if (wasLoggedOut == "true")
+            {
+                System.Diagnostics.Debug.WriteLine("User was logged out - starting direct login");
+
+                Preferences.Remove("user_logged_out");
+
+                await StartDirectLogin(window, authService);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(token))
+            {
+                System.Diagnostics.Debug.WriteLine("Geen token gevonden, starten direct login flow...");
+
+                await StartDirectLogin(window, authService);
+                return;
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("Token beschikbaar, refreshing API service...");
+                await RefreshApiServiceAfterLogin(token);
+
+                window.Page = new AppShell();
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"=== APP STARTUP FOUT: {ex} ===");
+            window.Page = new ContentPage
+            {
+                Content = new Label
+                {
+                    Text = $"App startup fout: {ex.Message}",
+                    VerticalOptions = LayoutOptions.Center,
+                    HorizontalOptions = LayoutOptions.Center
+                }
+            };
+        }
     }
 
     private async Task StartDirectLogin(Window window, AuthService authService)
     {
         try
         {
-            System.Diagnostics.Debug.WriteLine("=== STARTING DIRECT LOGIN ===");
+            System.Diagnostics.Debug.WriteLine("=== STARTING DIRECT LOGIN (Main Thread) ===");
 
-            MainThread.BeginInvokeOnMainThread(() =>
+            window.Page = new ContentPage
             {
-                window.Page = new ContentPage
+                Content = new VerticalStackLayout
                 {
-                    Content = new VerticalStackLayout
+                    VerticalOptions = LayoutOptions.Center,
+                    HorizontalOptions = LayoutOptions.Center,
+                    Spacing = 20,
+                    Children =
                     {
-                        VerticalOptions = LayoutOptions.Center,
-                        HorizontalOptions = LayoutOptions.Center,
-                        Spacing = 20,
-                        Children =
+                        new ActivityIndicator
                         {
-                            new ActivityIndicator
-                            {
-                                IsRunning = true,
-                                Color = Colors.Blue
-                            },
-                            new Label
-                            {
-                                Text = "Inloggen...",
-                                HorizontalOptions = LayoutOptions.Center,
-                                FontSize = 18
-                            },
+                            IsRunning = true,
+                            Color = Colors.Blue
+                        },
+                        new Label
+                        {
+                            Text = "Inloggen...",
+                            HorizontalOptions = LayoutOptions.Center,
+                            FontSize = 18
+                        },
 #if WINDOWS
-                            new Label
-                            {
-                                Text = "Windows: Automatische demo login",
-                                FontSize = 12,
-                                TextColor = Colors.Gray,
-                                HorizontalOptions = LayoutOptions.Center
-                            }
-#else
-                            new Label
-                            {
-                                Text = "",
-                                FontSize = 12,
-                                TextColor = Colors.Gray,
-                                HorizontalOptions = LayoutOptions.Center
-                            }
-#endif
+                        new Label
+                        {
+                            Text = "Windows: WebView Auth0 login",
+                            FontSize = 12,
+                            TextColor = Colors.Gray,
+                            HorizontalOptions = LayoutOptions.Center
                         }
+#else
+                        new Label
+                        {
+                            Text = "",
+                            FontSize = 12,
+                            TextColor = Colors.Gray,
+                            HorizontalOptions = LayoutOptions.Center
+                        }
+#endif
                     }
-                };
-            });
+                }
+            };
 
             var token = await authService.LoginAsync();
 
@@ -205,51 +207,12 @@ public partial class App : Application
 
                 await RefreshApiServiceAfterLogin(token);
 
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    window.Page = new AppShell();
-                });
+                window.Page = new AppShell();
             }
             else
             {
                 System.Diagnostics.Debug.WriteLine("Direct login failed");
 
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    window.Page = new ContentPage
-                    {
-                        Content = new VerticalStackLayout
-                        {
-                            VerticalOptions = LayoutOptions.Center,
-                            HorizontalOptions = LayoutOptions.Center,
-                            Spacing = 20,
-                            Children =
-                            {
-                                new Label
-                                {
-                                    Text = "❌ Login mislukt",
-                                    FontSize = 18,
-                                    HorizontalOptions = LayoutOptions.Center,
-                                    TextColor = Colors.Red
-                                },
-                                new Label
-                                {
-                                    Text = "Probeer het opnieuw door de app te herstarten",
-                                    HorizontalOptions = LayoutOptions.Center,
-                                    HorizontalTextAlignment = TextAlignment.Center
-                                }
-                            }
-                        }
-                    };
-                });
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Direct login error: {ex.Message}");
-
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
                 window.Page = new ContentPage
                 {
                     Content = new VerticalStackLayout
@@ -261,21 +224,51 @@ public partial class App : Application
                         {
                             new Label
                             {
-                                Text = "❌ Login fout",
+                                Text = "❌ Login mislukt",
                                 FontSize = 18,
                                 HorizontalOptions = LayoutOptions.Center,
                                 TextColor = Colors.Red
                             },
                             new Label
                             {
-                                Text = ex.Message,
+                                Text = "Probeer het opnieuw door de app te herstarten",
                                 HorizontalOptions = LayoutOptions.Center,
                                 HorizontalTextAlignment = TextAlignment.Center
                             }
                         }
                     }
                 };
-            });
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Direct login error: {ex.Message}");
+
+            window.Page = new ContentPage
+            {
+                Content = new VerticalStackLayout
+                {
+                    VerticalOptions = LayoutOptions.Center,
+                    HorizontalOptions = LayoutOptions.Center,
+                    Spacing = 20,
+                    Children =
+                    {
+                        new Label
+                        {
+                            Text = "❌ Login fout",
+                            FontSize = 18,
+                            HorizontalOptions = LayoutOptions.Center,
+                            TextColor = Colors.Red
+                        },
+                        new Label
+                        {
+                            Text = ex.Message,
+                            HorizontalOptions = LayoutOptions.Center,
+                            HorizontalTextAlignment = TextAlignment.Center
+                        }
+                    }
+                }
+            };
         }
     }
 }

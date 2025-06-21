@@ -30,7 +30,8 @@
             </Grid.ColumnDefinitions>
 
             <!-- Zoek knop als Frame -->
-            <Frame Grid.Column="0"
+            <Frame x:Name="SearchButton"
+                   Grid.Column="0"
                    BackgroundColor="Transparent"
                    WidthRequest="44"
                    HeightRequest="44"
@@ -75,7 +76,8 @@
             </Frame>
 
             <!-- Filter knop als Frame -->
-            <Frame Grid.Column="1"
+            <Frame x:Name="FilterButton"
+                   Grid.Column="1"
                    BackgroundColor="Transparent"
                    WidthRequest="44"
                    HeightRequest="44"
@@ -119,7 +121,8 @@
             </Frame>
 
             <!-- Refresh knop als Frame -->
-            <Frame Grid.Column="3"
+            <Frame x:Name="RefreshButton"
+                   Grid.Column="3"
                    BackgroundColor="Transparent"
                    WidthRequest="44"
                    HeightRequest="44"
@@ -194,20 +197,24 @@
                        WidthRequest="150"
                        HorizontalOptions="Start">
                     <VerticalStackLayout>
-                        <Label Text="Status"
+                        <Label x:Name="StatusLabel"
+                               Text="Status"
                                FontAttributes="Bold"
                                Margin="0,0,0,10"
                                TextColor="Black" />
 
-                        <RadioButton Content="Passed"
+                        <RadioButton x:Name="PassedRadioButton"
+                                     Content="Passed"
                                      IsChecked="{Binding IsStatusPassedSelected, Mode=TwoWay}"
                                      TextColor="Black" />
 
-                        <RadioButton Content="Failed"
+                        <RadioButton x:Name="FailedRadioButton"
+                                     Content="Failed"
                                      IsChecked="{Binding IsStatusFailedSelected, Mode=TwoWay}"
                                      TextColor="Black" />
 
-                        <Button Text="Reset filter"
+                        <Button x:Name="ResetFilterButton"
+                                Text="Reset filter"
                                 Command="{Binding ResetFiltersCommand}"
                                 BackgroundColor="#F0F0F0"
                                 TextColor="Black"
@@ -297,7 +304,8 @@
                                     </VerticalStackLayout>
 
                                     <!-- Delete knop als Frame -->
-                                    <Frame Grid.Column="1"
+                                    <Frame x:Name="DeleteButton"
+                                           Grid.Column="1"
                                            BackgroundColor="Transparent"
                                            WidthRequest="40"
                                            HeightRequest="40"

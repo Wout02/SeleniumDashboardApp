@@ -13,7 +13,6 @@ namespace SeleniumDashboardApp.UnitTests
         [Test]
         public void Test1_LocalTestRun_PropertiesWork()
         {
-            // Arrange & Act
             var testRun = new LocalTestRun
             {
                 BackendId = 123,
@@ -24,7 +23,6 @@ namespace SeleniumDashboardApp.UnitTests
                 LogOutput = "✔ Test completed successfully (100ms)"
             };
 
-            // Assert
             Assert.That(testRun.BackendId, Is.EqualTo(123));
             Assert.That(testRun.ProjectName, Is.EqualTo("My Test Project"));
             Assert.That(testRun.Status, Is.EqualTo("Passed"));

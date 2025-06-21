@@ -11,7 +11,6 @@ public partial class AuthWebViewPage : ContentPage
     private readonly string _redirectUri;
     private readonly TaskCompletionSource<AuthResult> _authTaskCompletionSource;
     private bool _authCompleted = false;
-    private string _lastUrl = "";
 
     public AuthWebViewPage(string authUrl, string redirectUri, TaskCompletionSource<AuthResult> tcs)
     {
@@ -20,247 +19,165 @@ public partial class AuthWebViewPage : ContentPage
         _redirectUri = redirectUri;
         _authTaskCompletionSource = tcs;
 
-        System.Diagnostics.Debug.WriteLine($"=== AUTH WEBVIEW PAGE ===");
+        System.Diagnostics.Debug.WriteLine($"=== AUTH WEBVIEW CREATED ===");
         System.Diagnostics.Debug.WriteLine($"Auth URL: {_authUrl}");
         System.Diagnostics.Debug.WriteLine($"Redirect URI: {_redirectUri}");
+
+        // Set title to show we're loading
+        Title = "Loading Auth...";
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
-
-        System.Diagnostics.Debug.WriteLine("=== AUTH WEBVIEW: Loading Auth0 URL ===");
-
-        AuthWebView.Source = _authUrl;
-        AuthWebView.IsVisible = true;
-        LoadingStack.IsVisible = false;
-
-        Device.StartTimer(TimeSpan.FromSeconds(2), () =>
-        {
-            if (_authCompleted) return false;
-
-            try
-            {
-                var currentUrl = AuthWebView.Source?.ToString() ?? "";
-
-                if (!string.IsNullOrEmpty(currentUrl) && currentUrl != _lastUrl)
-                {
-                    System.Diagnostics.Debug.WriteLine($"URL changed: {currentUrl}");
-                    _lastUrl = currentUrl;
-
-                    if (!currentUrl.Contains("authorize") && currentUrl.Contains("auth0.com"))
-                    {
-                        System.Diagnostics.Debug.WriteLine("Detected redirect after login - trying to extract auth code");
-                        _ = Task.Run(async () => await TryExtractAuthCode());
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Timer error: {ex.Message}");
-            }
-
-            return !_authCompleted;
-        });
-    }
-
-    private async Task TryExtractAuthCode()
-    {
-        if (_authCompleted) return;
+        System.Diagnostics.Debug.WriteLine("=== AUTH WEBVIEW: OnAppearing ===");
 
         try
         {
-            await MainThread.InvokeOnMainThreadAsync(async () =>
+            // Load immediately
+            System.Diagnostics.Debug.WriteLine("Setting WebView source...");
+            AuthWebView.Source = _authUrl;
+            AuthWebView.IsVisible = true;
+            LoadingStack.IsVisible = false;
+            Title = "Auth0 Login";
+
+            // Set a timeout
+            Device.StartTimer(TimeSpan.FromSeconds(60), () =>
             {
-                try
+                if (!_authCompleted)
                 {
-                    var currentUrl = AuthWebView.Source?.ToString() ?? "";
-                    System.Diagnostics.Debug.WriteLine($"Trying to extract auth code from: {currentUrl}");
-
-                    if (currentUrl.Contains("code="))
-                    {
-                        await HandleUrlWithCode(currentUrl);
-                        return;
-                    }
-
-                    var actualUrl = await AuthWebView.EvaluateJavaScriptAsync("window.location.href");
-                    System.Diagnostics.Debug.WriteLine($"Actual URL from JavaScript: {actualUrl}");
-
-                    if (!string.IsNullOrEmpty(actualUrl) && actualUrl.Contains("code="))
-                    {
-                        await HandleUrlWithCode(actualUrl);
-                        return;
-                    }
-
-                    var authCodeScript = @"
-                        // Look for auth code in various places
-                        var url = window.location.href;
-                        var urlParams = new URLSearchParams(window.location.search);
-                        var hashParams = new URLSearchParams(window.location.hash.substring(1));
-                        
-                        var code = urlParams.get('code') || hashParams.get('code');
-                        if (code) return code;
-                        
-                        // Check for hidden inputs
-                        var hiddenInputs = document.querySelectorAll('input[type=""hidden""]');
-                        for (var input of hiddenInputs) {
-                            if (input.name.includes('code') || input.id.includes('code')) {
-                                return input.value;
-                            }
-                        }
-                        
-                        // Check for any element containing what looks like an auth code
-                        var bodyText = document.body.innerText;
-                        var codeMatch = bodyText.match(/[a-zA-Z0-9_-]{20,}/);
-                        if (codeMatch) return codeMatch[0];
-                        
-                        return null;
-                    ";
-
-                    var jsResult = await AuthWebView.EvaluateJavaScriptAsync(authCodeScript);
-                    System.Diagnostics.Debug.WriteLine($"JavaScript auth code search result: {jsResult}");
-
-                    if (!string.IsNullOrEmpty(jsResult) && jsResult != "null" && jsResult.Length > 10)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"Found potential auth code: {jsResult}");
-                        await HandleAuthCode(jsResult);
-                        return;
-                    }
-
-                    if (!currentUrl.Contains("login") && currentUrl.Contains("auth0.com"))
-                    {
-                        System.Diagnostics.Debug.WriteLine("Seems like login completed but no auth code found");
-
-                        await Task.Delay(3000);
-
-                        if (!_authCompleted)
-                        {
-                            var finalUrl = await AuthWebView.EvaluateJavaScriptAsync("window.location.href");
-                            System.Diagnostics.Debug.WriteLine($"Final URL check: {finalUrl}");
-
-                            if (finalUrl.Contains("code="))
-                            {
-                                await HandleUrlWithCode(finalUrl);
-                            }
-                            else
-                            {
-                                System.Diagnostics.Debug.WriteLine("Manually redirecting to callback URL");
-                                AuthWebView.Source = _redirectUri + "?manual_redirect=true";
-                            }
-                        }
-                    }
+                    System.Diagnostics.Debug.WriteLine("=== TIMEOUT: Authentication took too long ===");
+                    CompleteWithError("Authentication timeout - please try again");
                 }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error in TryExtractAuthCode: {ex.Message}");
-                }
+                return false;
             });
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error in TryExtractAuthCode main: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"=== ERROR IN OnAppearing: {ex.Message} ===");
+            CompleteWithError($"Failed to start auth: {ex.Message}");
         }
-    }
-
-    private async Task HandleUrlWithCode(string url)
-    {
-        if (_authCompleted) return;
-
-        try
-        {
-            var uri = new Uri(url);
-            var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
-            var fragment = uri.Fragment?.TrimStart('#');
-            var fragmentParams = string.IsNullOrEmpty(fragment) ?
-                new System.Collections.Specialized.NameValueCollection() :
-                System.Web.HttpUtility.ParseQueryString(fragment);
-
-            var authCode = queryParams["code"] ?? fragmentParams["code"];
-            var error = queryParams["error"] ?? fragmentParams["error"];
-
-            if (!string.IsNullOrEmpty(error))
-            {
-                await HandleAuthError(error);
-            }
-            else if (!string.IsNullOrEmpty(authCode))
-            {
-                await HandleAuthCode(authCode);
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Error parsing URL: {ex.Message}");
-        }
-    }
-
-    private async Task HandleAuthCode(string authCode)
-    {
-        if (_authCompleted) return;
-
-        _authCompleted = true;
-        System.Diagnostics.Debug.WriteLine($"Auth code found: {authCode.Substring(0, Math.Min(10, authCode.Length))}...");
-
-        _authTaskCompletionSource.SetResult(new AuthResult
-        {
-            IsSuccess = true,
-            AuthorizationCode = authCode,
-            State = ""
-        });
-
-        await Navigation.PopModalAsync();
-    }
-
-    private async Task HandleAuthError(string error)
-    {
-        if (_authCompleted) return;
-
-        _authCompleted = true;
-        System.Diagnostics.Debug.WriteLine($"Auth error: {error}");
-
-        _authTaskCompletionSource.SetResult(new AuthResult
-        {
-            IsSuccess = false,
-            ErrorMessage = error
-        });
-
-        await Navigation.PopModalAsync();
     }
 
     private void OnWebViewNavigating(object sender, WebNavigatingEventArgs e)
     {
-        System.Diagnostics.Debug.WriteLine($"=== NAVIGATING TO: {e.Url} ===");
+        System.Diagnostics.Debug.WriteLine($"=== NAVIGATING: {e.Url} ===");
 
-        if (e.Url.Contains("code=") || e.Url.Contains("error="))
+        // Update title to show current action
+        Title = "Authenticating...";
+
+        if (e.Url.StartsWith("mauiapp://callback"))
         {
-            System.Diagnostics.Debug.WriteLine("Found callback URL during navigation!");
-            _ = Task.Run(async () => await HandleUrlWithCode(e.Url));
+            System.Diagnostics.Debug.WriteLine("=== CALLBACK DETECTED! ===");
+            e.Cancel = true;
+            HandleCallback(e.Url);
         }
     }
 
     private void OnWebViewNavigated(object sender, WebNavigatedEventArgs e)
     {
-        System.Diagnostics.Debug.WriteLine($"=== NAVIGATED TO: {e.Url} ===");
+        System.Diagnostics.Debug.WriteLine($"=== NAVIGATED: {e.Url} ===");
 
-        if (e.Url.Contains("code=") || e.Url.Contains("error="))
+        if (e.Url.StartsWith("mauiapp://callback"))
         {
-            System.Diagnostics.Debug.WriteLine("Found callback URL after navigation!");
-            _ = Task.Run(async () => await HandleUrlWithCode(e.Url));
+            System.Diagnostics.Debug.WriteLine("=== CALLBACK DETECTED AFTER NAV! ===");
+            HandleCallback(e.Url);
         }
+        else if (e.Url.Contains("login") || e.Url.Contains("auth0.com"))
+        {
+            Title = "Please login";
+        }
+    }
+
+    private void HandleCallback(string url)
+    {
+        if (_authCompleted) return;
+
+        System.Diagnostics.Debug.WriteLine($"=== PROCESSING CALLBACK: {url} ===");
+
+        try
+        {
+            var uri = new Uri(url);
+            var query = uri.Query;
+
+            System.Diagnostics.Debug.WriteLine($"Query string: {query}");
+
+            if (string.IsNullOrEmpty(query))
+            {
+                CompleteWithError("No query parameters in callback");
+                return;
+            }
+
+            var queryParams = System.Web.HttpUtility.ParseQueryString(query);
+            var code = queryParams["code"];
+            var error = queryParams["error"];
+
+            System.Diagnostics.Debug.WriteLine($"Error: {error}");
+
+            if (!string.IsNullOrEmpty(error))
+            {
+                CompleteWithError($"Auth0 error: {error}");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(code))
+            {
+                CompleteWithError("No authorization code received");
+                return;
+            }
+
+            CompleteWithSuccess(code);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"=== CALLBACK ERROR: {ex.Message} ===");
+            CompleteWithError($"Callback parsing error: {ex.Message}");
+        }
+    }
+
+    private void CompleteWithSuccess(string code)
+    {
+        if (_authCompleted) return;
+        _authCompleted = true;
+
+        System.Diagnostics.Debug.WriteLine($"=== AUTH SUCCESS: {code.Substring(0, 10)}... ===");
+        Title = "Login successful!";
+
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            _authTaskCompletionSource.SetResult(new AuthResult
+            {
+                IsSuccess = true,
+                AuthorizationCode = code
+            });
+
+            await Navigation.PopModalAsync();
+        });
+    }
+
+    private void CompleteWithError(string error)
+    {
+        if (_authCompleted) return;
+        _authCompleted = true;
+
+        System.Diagnostics.Debug.WriteLine($"=== AUTH ERROR: {error} ===");
+        Title = "Login failed";
+
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            _authTaskCompletionSource.SetResult(new AuthResult
+            {
+                IsSuccess = false,
+                ErrorMessage = error
+            });
+
+            await Navigation.PopModalAsync();
+        });
     }
 
     private async void OnCancelClicked(object sender, EventArgs e)
     {
-        if (_authCompleted) return;
-
-        System.Diagnostics.Debug.WriteLine("=== AUTH WEBVIEW: User cancelled ===");
-
-        _authCompleted = true;
-        _authTaskCompletionSource.SetResult(new AuthResult
-        {
-            IsSuccess = false,
-            ErrorMessage = "Authentication cancelled by user"
-        });
-
-        await Navigation.PopModalAsync();
+        System.Diagnostics.Debug.WriteLine("=== USER CANCELLED ===");
+        CompleteWithError("User cancelled authentication");
     }
 }

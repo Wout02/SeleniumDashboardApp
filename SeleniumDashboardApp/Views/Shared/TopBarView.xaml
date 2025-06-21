@@ -31,7 +31,8 @@
                 </Label.GestureRecognizers>
             </Label>
 
-            <Label Text="Selenium Dashboard"
+            <Label x:Name="AppTitle"
+                   Text="Selenium Dashboard"
                    FontSize="22"
                    FontAttributes="Bold"
                    VerticalOptions="Center"

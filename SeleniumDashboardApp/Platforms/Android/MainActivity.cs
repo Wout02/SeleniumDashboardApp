@@ -30,5 +30,9 @@ public class MainActivity : MauiAppCompatActivity
     protected override void OnNewIntent(Intent? intent)
     {
         base.OnNewIntent(intent);
+        if (intent != null)
+        {
+            Intent = intent;
+        }
     }
 }

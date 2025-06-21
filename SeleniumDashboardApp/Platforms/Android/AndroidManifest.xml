@@ -6,20 +6,36 @@
 	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 	<uses-permission android:name="android.permission.VIBRATE" />
 	<uses-permission android:name="android.permission.WAKE_LOCK" />
+	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+	<uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
 
-	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:supportsRtl="true">
+	<application
+		android:allowBackup="true"
+		android:icon="@mipmap/appicon"
+		android:supportsRtl="true"
+		android:usesCleartextTraffic="true"
+		android:requestLegacyExternalStorage="true">
+
+
 
 		<!-- WebAuthenticator Callback Activity -->
 		<activity
-            android:name="seleniumdashboardapp.platforms.android.WebAuthenticatorCallbackActivity"
-            android:exported="true"
-            android:launchMode="singleTop"
-            android:noHistory="true">
+			android:name="seleniumdashboardapp.platforms.android.WebAuthenticatorCallbackActivity"
+			android:exported="true"
+			android:launchMode="singleTop"
+			android:noHistory="true">
 			<intent-filter android:autoVerify="false">
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
 				<data android:scheme="mauiapp" />
+			</intent-filter>
+			<intent-filter android:autoVerify="false">
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data android:scheme="https"
+					  android:host="seleniumdashboardapp-production.up.railway.app" />
 			</intent-filter>
 		</activity>
 

@@ -30,11 +30,14 @@ namespace SeleniumDashboardApp.Services
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("=== WINDOWS: WebView Auth0 Login ===");
+                System.Diagnostics.Debug.WriteLine("=== STARTING WINDOWS WEBVIEW LOGIN ===");
                 
                 var codeVerifier = GenerateCodeVerifier();
                 var codeChallenge = GenerateCodeChallenge(codeVerifier);
                 var state = GenerateState();
+
+                System.Diagnostics.Debug.WriteLine($"Code verifier: {codeVerifier.Substring(0, 10)}...");
+                System.Diagnostics.Debug.WriteLine($"Code challenge: {codeChallenge.Substring(0, 10)}...");
 
                 var windowsCallbackUrl = "mauiapp://callback";
 
@@ -46,39 +49,77 @@ namespace SeleniumDashboardApp.Services
                               $"&code_challenge={Uri.EscapeDataString(codeChallenge)}" +
                               $"&code_challenge_method=S256" +
                               $"&state={Uri.EscapeDataString(state)}" +
-                              $"&prompt=login"; // This forces fresh login
+                              $"&prompt=login";
 
-                System.Diagnostics.Debug.WriteLine($"Windows WebView Auth URL: {authUrl}");
+                System.Diagnostics.Debug.WriteLine($"=== AUTH URL CREATED ===");
+                System.Diagnostics.Debug.WriteLine($"URL: {authUrl}");
 
+                System.Diagnostics.Debug.WriteLine("=== CREATING WEBVIEW PAGE ===");
                 var tcs = new TaskCompletionSource<AuthResult>();
                 var authPage = new Views.AuthWebViewPage(authUrl, windowsCallbackUrl, tcs);
                 
-                await Application.Current.MainPage.Navigation.PushModalAsync(authPage);
+                System.Diagnostics.Debug.WriteLine("=== PUSHING MODAL ON MAIN THREAD ===");
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    // Wait for MainPage to be available
+                    var retryCount = 0;
+                    while (Application.Current?.MainPage == null && retryCount < 50)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Waiting for MainPage... attempt {retryCount + 1}");
+                        await Task.Delay(100);
+                        retryCount++;
+                    }
+                    
+                    if (Application.Current?.MainPage == null)
+                    {
+                        throw new InvalidOperationException("MainPage is still null after waiting");
+                    }
+                    
+                    System.Diagnostics.Debug.WriteLine("MainPage is available, pushing modal...");
+                    await Application.Current.MainPage.Navigation.PushModalAsync(authPage);
+                });
                 
+                System.Diagnostics.Debug.WriteLine("=== WAITING FOR AUTH RESULT ===");
                 var authResult = await tcs.Task;
+                
+                System.Diagnostics.Debug.WriteLine($"=== AUTH RESULT RECEIVED ===");
+                System.Diagnostics.Debug.WriteLine($"Success: {authResult.IsSuccess}");
+                System.Diagnostics.Debug.WriteLine($"Error: {authResult.ErrorMessage}");
+                System.Diagnostics.Debug.WriteLine($"Code present: {!string.IsNullOrEmpty(authResult.AuthorizationCode)}");
                 
                 if (!authResult.IsSuccess)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Windows WebView auth failed: {authResult.ErrorMessage}");
+                    System.Diagnostics.Debug.WriteLine($"=== AUTH FAILED: {authResult.ErrorMessage} ===");
                     return null;
                 }
                 
+                if (string.IsNullOrEmpty(authResult.AuthorizationCode))
+                {
+                    System.Diagnostics.Debug.WriteLine("=== NO AUTH CODE RECEIVED ===");
+                    return null;
+                }
+
+                System.Diagnostics.Debug.WriteLine($"=== STARTING TOKEN EXCHANGE ===");
                 var token = await ExchangeCodeForTokenAsync(authResult.AuthorizationCode, codeVerifier, windowsCallbackUrl);
                 
                 if (!string.IsNullOrEmpty(token))
                 {
+                    System.Diagnostics.Debug.WriteLine("=== TOKEN EXCHANGE SUCCESS ===");
                     Preferences.Set("user_name", "Auth0 User (Windows)");
                     Preferences.Set("user_email", "user@auth0.com");
-                    
-                    System.Diagnostics.Debug.WriteLine("Windows WebView login successful!");
                     return token;
                 }
-                
-                return null;
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("=== TOKEN EXCHANGE FAILED ===");
+                    return null;
+                }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Windows WebView login error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"=== EXCEPTION IN WINDOWS LOGIN ===");
+                System.Diagnostics.Debug.WriteLine($"Message: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack: {ex.StackTrace}");
                 return null;
             }
         }
@@ -185,69 +226,18 @@ namespace SeleniumDashboardApp.Services
             }
         }
 
-#if WINDOWS
-        private async Task ClearWebViewSessionAsync()
-        {
-            try
-            {
-                System.Diagnostics.Debug.WriteLine("=== CLEARING WEBVIEW SESSION ===");
-
-                // Create logout URL
-                var logoutUrl = $"https://{_domain}/v2/logout" +
-                               $"?client_id={Uri.EscapeDataString(_clientId)}" +
-                               $"&returnTo={Uri.EscapeDataString("mauiapp://logout-complete")}";
-
-                System.Diagnostics.Debug.WriteLine($"Logout URL: {logoutUrl}");
-
-                // Show logout in WebView to clear Auth0 session
-                var tcs = new TaskCompletionSource<bool>();
-                var logoutPage = new Views.LogoutWebViewPage(logoutUrl, tcs);
-                
-                await Application.Current.MainPage.Navigation.PushModalAsync(logoutPage);
-                await tcs.Task; // Wait for logout to complete
-
-                System.Diagnostics.Debug.WriteLine("WebView session cleared");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error clearing WebView session: {ex.Message}");
-            }
-        }
-#endif
-
-        private async Task ClearMobileSessionAsync()
-        {
-            try
-            {
-                System.Diagnostics.Debug.WriteLine("=== CLEARING MOBILE SESSION ===");
-
-                var logoutUrl = $"https://{_domain}/v2/logout" +
-                               $"?client_id={Uri.EscapeDataString(_clientId)}" +
-                               $"&returnTo={Uri.EscapeDataString(_callbackUrl)}";
-
-                var logoutRequest = new WebAuthenticatorOptions
-                {
-                    Url = new Uri(logoutUrl),
-                    CallbackUrl = new Uri(_callbackUrl),
-                    PrefersEphemeralWebBrowserSession = true
-                };
-
-                await WebAuthenticator.Default.AuthenticateAsync(logoutRequest);
-
-                System.Diagnostics.Debug.WriteLine("Mobile session cleared");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Mobile logout error (expected): {ex.Message}");
-            }
-        }
-
         private async Task<string?> ExchangeCodeForTokenAsync(string authorizationCode, string codeVerifier, string? callbackUrl = null)
         {
             try
             {
                 var tokenUrl = $"https://{_domain}/oauth/token";
                 var redirectUri = callbackUrl ?? _callbackUrl;
+
+                System.Diagnostics.Debug.WriteLine($"=== TOKEN EXCHANGE ===");
+                System.Diagnostics.Debug.WriteLine($"Token URL: {tokenUrl}");
+                System.Diagnostics.Debug.WriteLine($"Redirect URI: {redirectUri}");
+                System.Diagnostics.Debug.WriteLine($"Client ID: {_clientId}");
+                System.Diagnostics.Debug.WriteLine($"Auth Code: {authorizationCode.Substring(0, Math.Min(10, authorizationCode.Length))}...");
 
                 var formData = new List<KeyValuePair<string, string>>
                 {
@@ -265,22 +255,30 @@ namespace SeleniumDashboardApp.Services
                 var response = await client.PostAsync(tokenUrl, content);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
+                System.Diagnostics.Debug.WriteLine($"Token response status: {response.StatusCode}");
+                System.Diagnostics.Debug.WriteLine($"Token response content: {responseContent}");
+
                 if (!response.IsSuccessStatusCode)
                 {
+                    System.Diagnostics.Debug.WriteLine($"Token exchange failed with status: {response.StatusCode}");
                     return null;
                 }
 
                 var payload = JsonDocument.Parse(responseContent);
                 if (payload.RootElement.TryGetProperty("access_token", out var tokenElement))
                 {
-                    return tokenElement.GetString();
+                    var token = tokenElement.GetString();
+                    System.Diagnostics.Debug.WriteLine($"Access token received: {(string.IsNullOrEmpty(token) ? "null" : token.Substring(0, Math.Min(20, token.Length)) + "...")}");
+                    return token;
                 }
 
+                System.Diagnostics.Debug.WriteLine("No access_token found in response");
                 return null;
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Token exchange error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
                 return null;
             }
         }
